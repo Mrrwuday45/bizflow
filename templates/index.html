@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizFlow - All-In-One Local Business CRM & AI Operating System</title>
+    <meta name="description" content="Streamline local business operations, manage customers, generate instant invoices, track inventory, and leverage AI co-pilot insights with BizFlow.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body class="landing-page">
+
+    <!-- Background Glow Ambient Mesh -->
+    <div class="lp-bg-mesh"></div>
+
+    <!-- Navigation Header -->
+    <header class="lp-navbar">
+        <div class="lp-container lp-nav-inner">
+            <a href="{{ url_for('index') }}" class="lp-brand">
+                <div class="lp-brand-logo">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <span class="lp-brand-name">BIZFLOW AI</span>
+            </a>
+
+            <ul class="lp-nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#demo">Live Demo</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+
+            <div class="lp-nav-actions">
+                {% if current_user %}
+                    <a href="{{ url_for('dashboard') }}" class="lp-btn lp-btn-primary">
+                        <i data-lucide="layout-dashboard"></i> Go to Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login_route') }}" class="lp-btn lp-btn-glass">Sign In</a>
+                    <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-primary">
+                        Get Started Free <i data-lucide="arrow-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="lp-hero">
+        <div class="lp-container">
+            <div class="lp-badge-pill">
+                <span class="lp-badge-dot"></span>
+                <span>⚡ Next-Gen All-In-One Business CRM & AI OS</span>
+            </div>
+
+            <h1 class="lp-hero-title">
+                Supercharge Your Local Business with <span class="lp-gradient-text">Smart AI & Seamless CRM</span>
+            </h1>
+
+            <p class="lp-hero-desc">
+                BizFlow empowers stores, services, and local enterprises to track sales, generate PDF invoices, manage customer relationships, and unlock real-time revenue AI insights—all in one intuitive workspace.
+            </p>
+
+            <div class="lp-hero-actions">
+                {% if current_user %}
+                    <a href="{{ url_for('dashboard') }}" class="lp-btn lp-btn-primary lp-btn-lg">
+                        <i data-lucide="layout-dashboard"></i> Launch Your Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-primary lp-btn-lg">
+                        Get Started for Free <i data-lucide="sparkles"></i>
+                    </a>
+                    <a href="{{ url_for('login_route') }}" class="lp-btn lp-btn-glass lp-btn-lg">
+                        <i data-lucide="lock"></i> Sign In to Account
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="lp-hero-trust">
+                <div class="lp-trust-item"><i data-lucide="check-circle-2" style="color:#10B981; width:16px;"></i> No credit card required</div>
+                <div class="lp-trust-item"><i data-lucide="check-circle-2" style="color:#10B981; width:16px;"></i> 30-Second Quick Setup</div>
+                <div class="lp-trust-item"><i data-lucide="check-circle-2" style="color:#10B981; width:16px;"></i> Google Gemini AI Powered</div>
+            </div>
+
+            <!-- Hero Mockup Display -->
+            <div class="lp-showcase-container">
+                <div class="lp-showcase-glow"></div>
+
+                <!-- Left Floating Badge -->
+                <div class="lp-float-badge lp-float-left">
+                    <div class="lp-float-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem; color:#94A3B8;">Monthly Sales Volume</div>
+                        <div style="font-size:1.1rem; font-weight:800; color:white;">$48,920.00 <span style="font-size:0.75rem; color:#34D399;">+34.2%</span></div>
+                    </div>
+                </div>
+
+                <!-- Right Floating Badge -->
+                <div class="lp-float-badge lp-float-right">
+                    <div class="lp-float-icon" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">
+                        <i data-lucide="brain"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem; color:#94A3B8;">AI Business Insight</div>
+                        <div style="font-size:0.85rem; font-weight:600; color:white;">"Top seller: Wireless Mouse (+42% demand)"</div>
+                    </div>
+                </div>
+
+                <!-- Mockup Window Frame -->
+                <div class="lp-mockup-window">
+                    <div class="lp-mockup-bar">
+                        <div class="lp-mockup-dots">
+                            <span class="lp-mockup-dot lp-dot-red"></span>
+                            <span class="lp-mockup-dot lp-dot-yellow"></span>
+                            <span class="lp-mockup-dot lp-dot-green"></span>
+                        </div>
+                        <span class="lp-mockup-title">BizFlow AI Operating Workspace — Dashboard</span>
+                    </div>
+
+                    <div class="lp-mockup-body">
+                        <!-- Sidebar Mockup -->
+                        <div class="lp-mockup-sidebar">
+                            <div class="lp-mockup-nav-item active">
+                                <i data-lucide="layout-dashboard" style="width:16px;"></i> Dashboard
+                            </div>
+                            <div class="lp-mockup-nav-item">
+                                <i data-lucide="users" style="width:16px;"></i> Customers (1,240)
+                            </div>
+                            <div class="lp-mockup-nav-item">
+                                <i data-lucide="package" style="width:16px;"></i> Products & Stock
+                            </div>
+                            <div class="lp-mockup-nav-item">
+                                <i data-lucide="shopping-cart" style="width:16px;"></i> Sales & POS
+                            </div>
+                            <div class="lp-mockup-nav-item">
+                                <i data-lucide="file-text" style="width:16px;"></i> PDF Invoices
+                            </div>
+                            <div class="lp-mockup-nav-item">
+                                <i data-lucide="brain" style="width:16px;"></i> AI Assistant
+                            </div>
+                        </div>
+
+                        <!-- Main Screen Content Mockup -->
+                        <div class="lp-mockup-main">
+                            <div class="lp-mockup-stats-grid">
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mockup-card-title">TOTAL REVENUE</div>
+                                    <div class="lp-mockup-card-val">$128,450</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +18.4%</div>
+                                </div>
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mockup-card-title">TOTAL SALES</div>
+                                    <div class="lp-mockup-card-val">1,842</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +12.1%</div>
+                                </div>
+                                <div class="lp-mockup-card">
+                                    <div class="lp-mockup-card-title">ACTIVE CUSTOMERS</div>
+                                    <div class="lp-mockup-card-val">580</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +24.8%</div>
+                                </div>
+                            </div>
+
+                            <!-- Mockup Transaction Table Preview -->
+                            <div style="background: rgba(22, 19, 48, 0.5); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                    <span style="font-size:0.88rem; font-weight:700; color:white;">Recent Automated Transactions</span>
+                                    <span style="font-size:0.75rem; color:#EC4899; font-weight:600;">Real-Time Sync</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.82rem;">
+                                        <span style="color:white; font-weight:600;">#INV-1092 • TechCorp Solutions</span>
+                                        <span style="color:#10B981; font-weight:700;">+$1,450.00 (Paid)</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.82rem;">
+                                        <span style="color:white; font-weight:600;">#INV-1091 • Apex Design Studio</span>
+                                        <span style="color:#10B981; font-weight:700;">+$820.00 (Paid)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Metrics Counter Bar -->
+    <section class="lp-metrics-section">
+        <div class="lp-container">
+            <div class="lp-metrics-grid">
+                <div class="lp-metric-card">
+                    <div class="lp-metric-num lp-gradient-text" data-count="$15.4M+">$0</div>
+                    <div class="lp-metric-label">Business Sales Processed</div>
+                </div>
+                <div class="lp-metric-card">
+                    <div class="lp-metric-num lp-gradient-text-alt" data-count="12,500+">0</div>
+                    <div class="lp-metric-label">Invoices Generated</div>
+                </div>
+                <div class="lp-metric-card">
+                    <div class="lp-metric-num lp-gradient-text" data-count="99.9%">0%</div>
+                    <div class="lp-metric-label">Platform Uptime</div>
+                </div>
+                <div class="lp-metric-card">
+                    <div class="lp-metric-num lp-gradient-text-alt" data-count="3.8x">0x</div>
+                    <div class="lp-metric-label">Average Growth Acceleration</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Grid -->
+    <section class="lp-features-section" id="features">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">POWERFUL FEATURES</span>
+                <h2 class="lp-section-title">Everything Your Business Needs to Thrive</h2>
+                <p class="lp-section-subtitle">Ditch fragmented spreadsheets and complex tools. BizFlow consolidates your entire sales funnel and customer database into one sleek dashboard.</p>
+            </div>
+
+            <div class="lp-features-grid">
+                <!-- Feature 1 -->
+                <div class="lp-feature-card" style="--card-accent: #EC4899;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="brain"></i>
+                    </div>
+                    <h3 class="lp-feature-title">AI Business Co-Pilot</h3>
+                    <p class="lp-feature-desc">Powered by Gemini AI. Ask questions about your top customers, profit margins, inventory forecasts, or automated growth recommendations in plain English.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="lp-feature-card" style="--card-accent: #6366F1;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <h3 class="lp-feature-title">Customer 360 & Directory</h3>
+                    <p class="lp-feature-desc">Store complete customer details, contact history, total spend, and custom notes to build long-lasting client relationships.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="lp-feature-card" style="--card-accent: #06B6D4;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <h3 class="lp-feature-title">Instant PDF Invoice Generator</h3>
+                    <p class="lp-feature-desc">Generate pixel-perfect professional PDF invoices with itemized totals, tax breakdown, and customer metadata in a single click.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="lp-feature-card" style="--card-accent: #10B981;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="shopping-cart"></i>
+                    </div>
+                    <h3 class="lp-feature-title">Sales POS & Cart Checkout</h3>
+                    <p class="lp-feature-desc">Process counter sales instantly. Add products to a cart, apply discounts, automatically update stock inventory, and issue receipts.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="lp-feature-card" style="--card-accent: #F59E0B;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="bar-chart-3"></i>
+                    </div>
+                    <h3 class="lp-feature-title">Live Revenue Analytics</h3>
+                    <p class="lp-feature-desc">Track sales velocity, daily revenue breakdown, average order value, and top performing product categories with real-time visual charts.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="lp-feature-card" style="--card-accent: #8B5CF6;">
+                    <div class="lp-feature-icon">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <h3 class="lp-feature-title">Multi-Tenant Cloud Security</h3>
+                    <p class="lp-feature-desc">Complete data isolation per store account. High-strength password hashing, secure session management, and encrypted data storage.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Live Demo Section -->
+    <section class="lp-demo-section" id="demo">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">INTERACTIVE SHOWCASE</span>
+                <h2 class="lp-section-title">See BizFlow in Action</h2>
+                <p class="lp-section-subtitle">Explore how different modules work together seamlessly to streamline your business workflow.</p>
+            </div>
+
+            <div class="lp-demo-tabs">
+                <button class="lp-demo-tab active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard" style="width:16px;"></i> Executive Dashboard
+                </button>
+                <button class="lp-demo-tab" data-tab="ai">
+                    <i data-lucide="brain" style="width:16px;"></i> AI Co-Pilot
+                </button>
+                <button class="lp-demo-tab" data-tab="pos">
+                    <i data-lucide="shopping-cart" style="width:16px;"></i> POS & Inventory
+                </button>
+                <button class="lp-demo-tab" data-tab="invoices">
+                    <i data-lucide="file-text" style="width:16px;"></i> PDF Invoices
+                </button>
+            </div>
+
+            <div class="lp-demo-content-box">
+                <!-- Tab 1: Dashboard -->
+                <div class="lp-demo-pane active" id="demo-dashboard">
+                    <div class="lp-demo-info">
+                        <h3>Real-Time Control Center</h3>
+                        <p>Get a instant pulse of your entire business operations. Monitor revenue spikes, inventory low-stock alerts, and customer activity from one screen.</p>
+                        <ul class="lp-demo-checklist">
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Automated revenue summary metrics</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Instant quick action buttons for daily operations</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Multi-device responsive dashboard UI</li>
+                        </ul>
+                    </div>
+                    <div class="lp-demo-visual">
+                        <div style="padding:16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                            <div style="font-size:0.85rem; color:#94A3B8; margin-bottom:8px;">Live Dashboard Glance</div>
+                            <div style="font-size:1.8rem; font-weight:800; color:white;">$12,450.00</div>
+                            <div style="height:6px; background:linear-gradient(90deg, #6366F1, #EC4899); border-radius:4px; margin:16px 0;"></div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#CBD5E1;">
+                                <span>Sales Today: 24</span>
+                                <span>New Customers: +6</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: AI Co-Pilot -->
+                <div class="lp-demo-pane" id="demo-ai">
+                    <div class="lp-demo-info">
+                        <h3>Your 24/7 Intelligent Business Analyst</h3>
+                        <p>Ask complex questions about your inventory trends, demand forecasting, or high-value customer retention strategies.</p>
+                        <ul class="lp-demo-checklist">
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Context-aware query responses</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Automated sales report summaries</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Custom API key support for Gemini AI</li>
+                        </ul>
+                    </div>
+                    <div class="lp-demo-visual">
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div style="align-self:flex-end; background:#6366F1; color:white; padding:10px 14px; border-radius:14px 14px 2px 14px; font-size:0.88rem; max-width:80%;">
+                                "Who is our top customer this month?"
+                            </div>
+                            <div style="align-self:flex-start; background:rgba(255,255,255,0.06); color:#E2E8F0; padding:12px 16px; border-radius:14px 14px 14px 2px; font-size:0.88rem; border:1px solid rgba(255,255,255,0.1); max-width:85%;">
+                                <i data-lucide="sparkles" style="width:14px; color:#EC4899; display:inline; margin-right:4px;"></i>
+                                "Acme Supplies is your top customer with 4 orders totaling $3,200.00 this month."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: POS & Inventory -->
+                <div class="lp-demo-pane" id="demo-pos">
+                    <div class="lp-demo-info">
+                        <h3>Lightning-Fast Checkout & Inventory</h3>
+                        <p>Never lose track of stock. Every sale automatically decrements stock levels and alerts you when quantities drop low.</p>
+                        <ul class="lp-demo-checklist">
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Multi-category product catalog</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Real-time cart calculation with discounts</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Low-stock warning indicators</li>
+                        </ul>
+                    </div>
+                    <div class="lp-demo-visual">
+                        <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.88rem; font-weight:700; color:white;">
+                                <span>Cart Items (2)</span>
+                                <span style="color:#10B981;">Subtotal: $140.00</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:#94A3B8;">1x Wireless Mechanical Keyboard ($120.00)</div>
+                            <div style="font-size:0.82rem; color:#94A3B8; margin-top:4px;">1x Ergonomic Mousepad ($20.00)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: PDF Invoices -->
+                <div class="lp-demo-pane" id="demo-invoices">
+                    <div class="lp-demo-info">
+                        <h3>Professional PDF Invoices</h3>
+                        <p>Generate downloadable, print-ready PDF invoices formatted according to industry standards with tax, discount, and store details.</p>
+                        <ul class="lp-demo-checklist">
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Clean PDF layout generation</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Automated invoice numbering</li>
+                            <li><span class="lp-check-icon"><i data-lucide="check" style="width:12px;"></i></span> Direct view and download actions</li>
+                        </ul>
+                    </div>
+                    <div class="lp-demo-visual">
+                        <div style="text-align:center; padding:20px; background:white; color:#0F172A; border-radius:12px;">
+                            <div style="font-weight:800; font-size:1.1rem; color:#4F46E5;">INVOICE #INV-2026-001</div>
+                            <div style="font-size:0.8rem; color:#64748B; margin-top:4px;">BizFlow AI Store • Official Receipt</div>
+                            <div style="margin-top:16px; border-top:1px dashed #CBD5E1; padding-top:10px; font-size:0.85rem; font-weight:700; text-align:right;">
+                                Total Amount Paid: $250.00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="lp-steps-section" id="how-it-works">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">SIMPLE WORKFLOW</span>
+                <h2 class="lp-section-title">Up & Running in 3 Easy Steps</h2>
+                <p class="lp-section-subtitle">Get your business onboarded and processing sales in under two minutes.</p>
+            </div>
+
+            <div class="lp-steps-grid">
+                <div class="lp-step-card">
+                    <div class="lp-step-number">01</div>
+                    <h3 class="lp-step-title">Create Free Account</h3>
+                    <p class="lp-step-desc">Sign up in seconds with your store details. No credit card or complex installation required.</p>
+                </div>
+
+                <div class="lp-step-card">
+                    <div class="lp-step-number">02</div>
+                    <h3 class="lp-step-title">Add Products & Clients</h3>
+                    <p class="lp-step-desc">Populate your inventory catalog and customer list with clean forms or quick entries.</p>
+                </div>
+
+                <div class="lp-step-card">
+                    <div class="lp-step-number">03</div>
+                    <h3 class="lp-step-title">Sell, Invoice & Scale</h3>
+                    <p class="lp-step-desc">Process sales at counter, generate PDF invoices, and let AI reveal your highest margin opportunities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="lp-testimonials-section" id="testimonials">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">CUSTOMER SUCCESS</span>
+                <h2 class="lp-section-title">Loved by Business Owners</h2>
+                <p class="lp-section-subtitle">See how local stores, boutiques, and service agencies rely on BizFlow daily.</p>
+            </div>
+
+            <div class="lp-testimonials-grid">
+                <!-- Review 1 -->
+                <div class="lp-testimonial-card">
+                    <div>
+                        <div class="lp-stars">
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                        </div>
+                        <p class="lp-testimonial-text">"BizFlow transformed our retail store operations. Generating instant invoices and seeing real-time inventory depletion saves us over 10 hours every week."</p>
+                    </div>
+                    <div class="lp-author">
+                        <div class="lp-author-avatar" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
+                            MS
+                        </div>
+                        <div class="lp-author-info">
+                            <h4>Michael Scott</h4>
+                            <span>Owner, Urban Hardware & Tools</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="lp-testimonial-card">
+                    <div>
+                        <div class="lp-stars">
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                        </div>
+                        <p class="lp-testimonial-text">"The AI Co-Pilot is mind-blowing. I can literally ask 'Which products have low stock?' or 'Summarize today's profits' and get an instant breakdown!"</p>
+                    </div>
+                    <div class="lp-author">
+                        <div class="lp-author-avatar" style="background: linear-gradient(135deg, #06B6D4, #10B981); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
+                            SL
+                        </div>
+                        <div class="lp-author-info">
+                            <h4>Sophia Lin</h4>
+                            <span>Founder, Velvet Boutique</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="lp-testimonial-card">
+                    <div>
+                        <div class="lp-stars">
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                            <i data-lucide="star" style="fill:#F59E0B; width:16px;"></i>
+                        </div>
+                        <p class="lp-testimonial-text">"Finally a CRM that isn't bloated with unnecessary menus. It's clean, lightning fast, and my staff learned to use it in 5 minutes."</p>
+                    </div>
+                    <div class="lp-author">
+                        <div class="lp-author-avatar" style="background: linear-gradient(135deg, #6366F1, #EC4899); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
+                            DR
+                        </div>
+                        <div class="lp-author-info">
+                            <h4>David Ross</h4>
+                            <span>Director, TechService Agency</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="lp-pricing-section" id="pricing">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">SIMPLE TRANSPARENT PRICING</span>
+                <h2 class="lp-section-title">Plans Designed for Every Scale</h2>
+                <p class="lp-section-subtitle">Choose the plan that fits your business needs. Upgrade or downgrade anytime.</p>
+            </div>
+
+            <div class="lp-pricing-toggle">
+                <span class="lp-toggle-label active">Monthly Billing</span>
+                <label class="lp-switch">
+                    <input type="checkbox" id="billing-toggle">
+                    <span class="lp-slider"></span>
+                </label>
+                <span class="lp-toggle-label">Annual Billing</span>
+                <span class="lp-discount-badge">Save 20%</span>
+            </div>
+
+            <div class="lp-pricing-grid">
+                <!-- Plan 1 -->
+                <div class="lp-pricing-card">
+                    <h3 class="lp-plan-name">Starter</h3>
+                    <p class="lp-plan-desc">Perfect for small shops and freelancers starting out.</p>
+                    <div class="lp-plan-price" id="price-starter">$0 <span>/ mo</span></div>
+
+                    <ul class="lp-plan-features">
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Up to 50 Customers</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Up to 25 Products</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Unlimited PDF Invoices</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Basic Analytics</li>
+                    </ul>
+
+                    <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-glass" style="width:100%; margin-top:auto;">Get Started Free</a>
+                </div>
+
+                <!-- Plan 2 (Featured) -->
+                <div class="lp-pricing-card featured">
+                    <div class="lp-popular-badge">MOST POPULAR</div>
+                    <h3 class="lp-plan-name" style="color:white;">Pro Business</h3>
+                    <p class="lp-plan-desc">Ideal for growing retail stores and service companies.</p>
+                    <div class="lp-plan-price" id="price-pro" style="color:white;">$39 <span>/ mo</span></div>
+
+                    <ul class="lp-plan-features">
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Unlimited Customers & Stock</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> AI Business Co-Pilot Insights</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> POS Cart Checkout System</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Instant PDF Invoice Branding</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Real-Time Revenue Analytics</li>
+                    </ul>
+
+                    <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-primary" style="width:100%; margin-top:auto;">Start 14-Day Free Trial</a>
+                </div>
+
+                <!-- Plan 3 -->
+                <div class="lp-pricing-card">
+                    <h3 class="lp-plan-name">Enterprise</h3>
+                    <p class="lp-plan-desc">For high volume multi-location enterprises.</p>
+                    <div class="lp-plan-price" id="price-enterprise">$99 <span>/ mo</span></div>
+
+                    <ul class="lp-plan-features">
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Everything in Pro</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Priority 24/7 AI Assistance</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Dedicated Cloud Database</li>
+                        <li><i data-lucide="check" style="color:#10B981; width:16px;"></i> Custom API Integrations</li>
+                    </ul>
+
+                    <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-glass" style="width:100%; margin-top:auto;">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Accordion Section -->
+    <section class="lp-faq-section" id="faq">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">GOT QUESTIONS?</span>
+                <h2 class="lp-section-title">Frequently Asked Questions</h2>
+                <p class="lp-section-subtitle">Here are quick answers to help you get started with BizFlow.</p>
+            </div>
+
+            <div class="lp-faq-container">
+                <div class="lp-faq-item active">
+                    <div class="lp-faq-question">
+                        <span>How does the AI Assistant work in BizFlow?</span>
+                        <i data-lucide="chevron-down" class="lp-faq-icon"></i>
+                    </div>
+                    <div class="lp-faq-answer">
+                        BizFlow integrates with Google Gemini AI. It analyzes your store's sales records, customer order history, and product inventory to answer natural language questions, generate business summaries, and give actionable recommendations.
+                    </div>
+                </div>
+
+                <div class="lp-faq-item">
+                    <div class="lp-faq-question">
+                        <span>Can I generate PDF invoices for my customers?</span>
+                        <i data-lucide="chevron-down" class="lp-faq-icon"></i>
+                    </div>
+                    <div class="lp-faq-answer">
+                        Yes! With one click during sale checkout or from the invoices tab, BizFlow automatically generates a clean, downloadable PDF invoice containing itemized prices, tax summaries, and customer details.
+                    </div>
+                </div>
+
+                <div class="lp-faq-item">
+                    <div class="lp-faq-question">
+                        <span>Is my business data private and secure?</span>
+                        <i data-lucide="chevron-down" class="lp-faq-icon"></i>
+                    </div>
+                    <div class="lp-faq-answer">
+                        Absolutely. Every account's data is isolated per store user in our secure database. We enforce secure password hashing, session tokens, and encrypted transport.
+                    </div>
+                </div>
+
+                <div class="lp-faq-item">
+                    <div class="lp-faq-question">
+                        <span>Can I upgrade or cancel my plan anytime?</span>
+                        <i data-lucide="chevron-down" class="lp-faq-icon"></i>
+                    </div>
+                    <div class="lp-faq-answer">
+                        Yes, you can upgrade, downgrade, or cancel your account plan at any time without hidden fees or lock-in contracts.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner Section -->
+    <section class="lp-cta-section">
+        <div class="lp-container">
+            <div class="lp-cta-card">
+                <h2 class="lp-cta-title">Ready to Elevate Your Business Operations?</h2>
+                <p class="lp-cta-desc">Join thousands of smart store managers and business owners driving efficiency with BizFlow AI.</p>
+                <div style="display:flex; justify-content:center; gap:16px;">
+                    {% if current_user %}
+                        <a href="{{ url_for('dashboard') }}" class="lp-btn lp-btn-primary lp-btn-lg">
+                            <i data-lucide="layout-dashboard"></i> Enter Your Workspace
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register_route') }}" class="lp-btn lp-btn-primary lp-btn-lg">
+                            Get Started for Free <i data-lucide="sparkles"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="lp-footer">
+        <div class="lp-container">
+            <div class="lp-footer-grid">
+                <div class="lp-footer-brand">
+                    <a href="{{ url_for('index') }}" class="lp-brand">
+                        <div class="lp-brand-logo">
+                            <i data-lucide="sparkles"></i>
+                        </div>
+                        <span class="lp-brand-name">BIZFLOW AI</span>
+                    </a>
+                    <p>The modern, intelligent CRM and business operating system engineered for local business growth.</p>
+                </div>
+
+                <div>
+                    <h4 class="lp-footer-title">Product</h4>
+                    <ul class="lp-footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#demo">Live Demo</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="{{ url_for('register_route') }}">Sign Up</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="lp-footer-title">Solutions</h4>
+                    <ul class="lp-footer-links">
+                        <li><a href="#features">Retail & POS</a></li>
+                        <li><a href="#features">Service Agencies</a></li>
+                        <li><a href="#features">PDF Invoicing</a></li>
+                        <li><a href="#features">AI Analytics</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="lp-footer-title">Account</h4>
+                    <ul class="lp-footer-links">
+                        <li><a href="{{ url_for('login_route') }}">Sign In</a></li>
+                        <li><a href="{{ url_for('register_route') }}">Register Store</a></li>
+                        <li><a href="{{ url_for('forgot_password_route') }}">Reset Password</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lp-footer-bottom">
+                <div>© 2026 BizFlow AI Inc. All rights reserved.</div>
+                <div style="display:flex; gap:16px;">
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <span style="width:8px; height:8px; background:#10B981; border-radius:50%;"></span> Systems Operational
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>

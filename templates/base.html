@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bizflow AI - Local Business CRM{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="{{ url_for('index') }}" class="brand-container" style="text-decoration: none;">
+            <div class="brand-icon">
+                <i data-lucide="sparkles"></i>
+            </div>
+            <span class="brand-title">BIZFLOW AI</span>
+        </a>
+
+        <ul class="nav-menu">
+            <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                <a href="{{ url_for('dashboard') }}">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item {% if active_page == 'customers' %}active{% endif %}">
+                <a href="{{ url_for('customers_page') }}">
+                    <i data-lucide="users"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item {% if active_page == 'products' %}active{% endif %}">
+                <a href="{{ url_for('products_page') }}">
+                    <i data-lucide="package"></i>
+                    <span>Products & Stock</span>
+                </a>
+            </li>
+            <li class="nav-item {% if active_page == 'sales' %}active{% endif %}">
+                <a href="{{ url_for('sales_page') }}">
+                    <i data-lucide="shopping-cart"></i>
+                    <span>Sales & POS</span>
+                </a>
+            </li>
+            <li class="nav-item {% if active_page == 'invoices' %}active{% endif %}">
+                <a href="{{ url_for('invoices_page') }}">
+                    <i data-lucide="file-text"></i>
+                    <span>Invoices</span>
+                </a>
+            </li>
+            <li class="nav-item {% if active_page == 'ai' %}active{% endif %}">
+                <a href="{{ url_for('ai_assistant_page') }}">
+                    <i data-lucide="brain"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <p><strong>Bizflow AI System</strong></p>
+            <p>Version 2.5 • AI-Powered CRM</p>
+            <div style="margin-top:12px;">
+                <a href="{{ url_for('logout_route') }}" style="color:var(--accent-rose); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> Logout
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Bar Header -->
+        <header class="top-header">
+            <div class="header-title">{% block page_heading %}Dashboard{% endblock %}</div>
+            <div class="header-actions">
+                <div class="user-badge">
+                    <span class="status-dot"></span>
+                    <span><strong>{{ current_user['name'] if current_user else 'Store Admin' }}</strong> ({{ current_user['role'] if current_user else 'Admin' }})</span>
+                </div>
+                <a href="{{ url_for('logout_route') }}" class="btn btn-secondary btn-sm" title="Log out of session">
+                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> Logout
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Body -->
+        <main class="content-body">
+            <!-- Flash Message Alerts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'success' }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Application Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

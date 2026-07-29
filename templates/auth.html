@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Bizflow AI - Authentication</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            background: #0B0719;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.35) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.30) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.25) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.25) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 1080px;
+            min-height: 640px;
+            background: rgba(15, 17, 32, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 28px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(99, 102, 241, 0.2);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Left Visual Artwork Panel */
+        .auth-art-panel {
+            flex: 1.15;
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.95)), 
+                        url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-art-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(11, 7, 25, 0.5) 0%, rgba(11, 7, 25, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .art-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .art-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+
+        .art-logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #EC4899, #8B5CF6, #6366F1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+        }
+
+        .art-logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #FFFFFF, #E0E7FF, #F472B6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .art-headline {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.25;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .art-subtitle {
+            color: #CBD5E1;
+            font-size: 0.98rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .art-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .art-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #F1F5F9;
+            font-size: 0.92rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .art-feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: white;
+        }
+        .art-feature-icon.purple {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+        .art-feature-icon.emerald {
+            background: linear-gradient(135deg, #10B981, #059669);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        }
+        .art-feature-icon.pink {
+            background: linear-gradient(135deg, #EC4899, #F43F5E);
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Right Form Panel */
+        .auth-form-panel {
+            flex: 1;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(15, 17, 32, 0.95);
+        }
+
+        .auth-nav-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 0.84rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .auth-tab-btn.active {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.5);
+        }
+
+        .tab-content-form {
+            display: none;
+        }
+
+        .tab-content-form.active {
+            display: block;
+        }
+
+        .auth-form-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .auth-form-sub {
+            font-size: 0.88rem;
+            color: #94A3B8;
+            margin-bottom: 24px;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #EC4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .form-row-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: -4px;
+            margin-bottom: 22px;
+            font-size: 0.85rem;
+        }
+
+        .forgot-link {
+            color: #F472B6;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .forgot-link:hover {
+            color: #EC4899;
+            text-decoration: underline;
+        }
+
+        .btn-colorful-primary {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 18px rgba(139, 92, 246, 0.4);
+            font-weight: 700;
+        }
+        .btn-colorful-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(236, 72, 153, 0.5);
+        }
+
+        .btn-colorful-emerald {
+            background: linear-gradient(135deg, #10B981, #06B6D4);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+            font-weight: 700;
+        }
+        .btn-colorful-emerald:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-colorful-amber {
+            background: linear-gradient(135deg, #F59E0B, #EF4444);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+            font-weight: 700;
+        }
+        .btn-colorful-amber:hover {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 880px) {
+            .auth-container {
+                flex-direction: column;
+            }
+            .auth-art-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- Left Side: Vibrant Visual Artwork Panel -->
+        <div class="auth-art-panel">
+            <div class="art-content">
+                <a href="{{ url_for('index') }}" class="art-logo" style="text-decoration: none;">
+                    <div class="art-logo-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <span class="art-logo-text">Bizflow AI</span>
+                </a>
+
+                <h1 class="art-headline">Power Your Store with AI & Smart POS.</h1>
+                <p class="art-subtitle">Smart customer insights, automated ReportLab PDF invoices, and real-time inventory management.</p>
+
+                <div class="art-features">
+                    <div class="art-feature-item">
+                        <div class="art-feature-icon purple"><i data-lucide="brain"></i></div>
+                        <span>AI Re-engagement & Customer Retention</span>
+                    </div>
+                    <div class="art-feature-item">
+                        <div class="art-feature-icon emerald"><i data-lucide="file-text"></i></div>
+                        <span>Instant Professional PDF Invoicing</span>
+                    </div>
+                    <div class="art-feature-item">
+                        <div class="art-feature-icon pink"><i data-lucide="shopping-cart"></i></div>
+                        <span>Real-Time Sales POS & Inventory Alerts</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="art-content" style="font-size:0.8rem; color:#94A3B8;">
+                © 2026 Bizflow AI Inc. All rights reserved.
+            </div>
+        </div>
+
+        <!-- Right Side: Interactive Vibrant Form Panel -->
+        <div class="auth-form-panel">
+            <!-- Flash Notifications -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'success' }}" style="margin-bottom:18px;">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Navigation Tabs -->
+            <div class="auth-nav-tabs">
+                <button type="button" class="auth-tab-btn {% if mode == 'login' or not mode %}active{% endif %}" onclick="switchAuthTab('loginTab')">Sign In</button>
+                <button type="button" class="auth-tab-btn {% if mode == 'register' %}active{% endif %}" onclick="switchAuthTab('registerTab')">New User Register</button>
+                <button type="button" class="auth-tab-btn {% if mode == 'forgot' %}active{% endif %}" onclick="switchAuthTab('forgotTab')">Forgot Password</button>
+            </div>
+
+            <!-- Form 1: LOGIN -->
+            <div id="loginTab" class="tab-content-form {% if mode == 'login' or not mode %}active{% endif %}">
+                <h2 class="auth-form-title">Welcome to Bizflow AI 👋</h2>
+                <p class="auth-form-sub">Sign in to open your isolated store dashboard.</p>
+
+                <form action="{{ url_for('login_route') }}" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Username or Email *</label>
+                        <input type="text" name="identifier" class="form-control" placeholder="admin or user@bizflow.ai" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="form-row-link">
+                        <label style="color:#94A3B8; cursor:pointer;">
+                            <input type="checkbox" name="remember" checked style="accent-color:#EC4899;"> Remember me
+                        </label>
+                        <span class="forgot-link" onclick="switchAuthTab('forgotTab')">Forgot password?</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-colorful-primary" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
+                        <i data-lucide="log-in"></i> Sign In to Bizflow AI
+                    </button>
+                </form>
+
+                <div style="margin-top:20px; font-size:0.85rem; text-align:center; color:#94A3B8;">
+                    Default Admin Credentials: <b style="color:#F472B6;">admin</b> / <b style="color:#F472B6;">admin123</b>
+                </div>
+            </div>
+
+            <!-- Form 2: NEW USER REGISTER -->
+            <div id="registerTab" class="tab-content-form {% if mode == 'register' %}active{% endif %}">
+                <h2 class="auth-form-title">Create New Account 🚀</h2>
+                <p class="auth-form-sub">Create your fresh account (Starts at 0 sales & 0 revenue).</p>
+
+                <form action="{{ url_for('register_route') }}" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Thota Uday kiran" required>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div class="form-group">
+                            <label class="form-label">Username *</label>
+                            <input type="text" name="username" class="form-control" placeholder="udaykiran" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" name="email" class="form-control" placeholder="uday@bizflow.ai" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password *</label>
+                        <input type="password" name="password" class="form-control" placeholder="At least 6 characters" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Security Question (For Password Recovery) *</label>
+                        <select name="reset_question" class="form-control">
+                            <option value="What is your store name?">What is your store name?</option>
+                            <option value="What city were you born in?">What city were you born in?</option>
+                            <option value="What is your pet's name?">What is your pet's name?</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Security Answer *</label>
+                        <input type="text" name="reset_answer" class="form-control" placeholder="Your secret answer" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-colorful-emerald" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
+                        <i data-lucide="user-plus"></i> Register & Open Store
+                    </button>
+                </form>
+            </div>
+
+            <!-- Form 3: FORGOT PASSWORD -->
+            <div id="forgotTab" class="tab-content-form {% if mode == 'forgot' %}active{% endif %}">
+                <h2 class="auth-form-title">Reset Your Password 🔐</h2>
+                <p class="auth-form-sub">Answer your security question to set a new password.</p>
+
+                <form action="{{ url_for('forgot_password_route') }}" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Username or Registered Email *</label>
+                        <input type="text" name="identifier" class="form-control" placeholder="admin or uday@bizflow.ai" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Security Answer *</label>
+                        <input type="text" name="reset_answer" class="form-control" placeholder="Answer to your security question" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">New Password *</label>
+                        <input type="password" name="new_password" class="form-control" placeholder="Enter new password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-colorful-amber" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
+                        <i data-lucide="key"></i> Update Password & Sign In
+                    </button>
+                </form>
+
+                <div style="margin-top:18px; text-align:center;">
+                    <span class="forgot-link" onclick="switchAuthTab('loginTab')">← Back to Sign In</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        function switchAuthTab(tabId) {
+            document.querySelectorAll('.tab-content-form').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.auth-tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            const btnIndex = tabId === 'loginTab' ? 0 : (tabId === 'registerTab' ? 1 : 2);
+            document.querySelectorAll('.auth-tab-btn')[btnIndex].classList.add('active');
+        }
+    </script>
+</body>
+</html>

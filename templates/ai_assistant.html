@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+
+{% block title %}Bizflow Gemini AI - Copilot Workspace{% endblock %}
+{% block page_heading %}Bizflow Gemini AI Workspace{% endblock %}
+
+{% block content %}
+<!-- Marked.js for Rich Markdown & Bullet Point Parsing -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="gemini-workspace-container">
+    
+    <!-- Gemini Header Greeting -->
+    <div class="gemini-header">
+        <div class="gemini-badge">
+            <i data-lucide="sparkles" style="color:#EC4899; width:16px;"></i>
+            <span>Bizflow Gemini 2.5 Flash</span>
+        </div>
+        <h1 class="gemini-title">Hello, {{ current_user['name'] if current_user else 'Store Manager' }}! 👋</h1>
+        <p class="gemini-subtitle">How can Bizflow Gemini help grow your business today?</p>
+    </div>
+
+    <!-- 4-Card Quick Prompt Grid (Gemini AI Style) -->
+    <div class="gemini-cards-grid" id="geminiPromptGrid">
+        <div class="gemini-card" onclick="sendQuickPrompt('Analyze my store sales performance and give 3 strategic growth recommendations.')">
+            <div class="gemini-card-icon purple"><i data-lucide="trending-up"></i></div>
+            <div class="gemini-card-title">Boost Store Revenue</div>
+            <div class="gemini-card-desc">Analyze revenue trends & get actionable growth strategies</div>
+        </div>
+
+        <div class="gemini-card" onclick="sendQuickPrompt('Draft a high-converting 15% discount WhatsApp & SMS promotional offer for my customers.')">
+            <div class="gemini-card-icon pink"><i data-lucide="message-square"></i></div>
+            <div class="gemini-card-title">Draft Promo Offer SMS</div>
+            <div class="gemini-card-desc">Create personalized promotional messages for WhatsApp & SMS</div>
+        </div>
+
+        <div class="gemini-card" onclick="sendQuickPrompt('Which items in my inventory are running low on stock and need immediate restock?')">
+            <div class="gemini-card-icon emerald"><i data-lucide="package"></i></div>
+            <div class="gemini-card-title">Stock Restock Alert</div>
+            <div class="gemini-card-desc">Check low-stock products & inventory reorder advice</div>
+        </div>
+
+        <div class="gemini-card" onclick="sendQuickPrompt('Give me step-by-step advice on how to improve customer retention and repeat visits.')">
+            <div class="gemini-card-icon amber"><i data-lucide="users"></i></div>
+            <div class="gemini-card-title">Customer VIP Retention</div>
+            <div class="gemini-card-desc">Build customer loyalty programs and repeat purchase plans</div>
+        </div>
+    </div>
+
+    <!-- Scrollable Chat Timeline Stream -->
+    <div class="gemini-chat-card card">
+        <div class="chat-header-bar">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="gemini-sparkle-avatar"><i data-lucide="sparkles"></i></div>
+                <div>
+                    <h3 style="font-size:1.05rem; font-weight:700; color:white;">Bizflow Gemini Copilot</h3>
+                    <p style="font-size:0.78rem; color:var(--text-muted);">Real-time context • Markdown bullet points enabled</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="clearChatHistory()">
+                <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Clear Stream
+            </button>
+        </div>
+
+        <div id="chatStream" class="chat-stream-body">
+            <!-- Initial Gemini Welcome Bubble -->
+            <div class="chat-msg ai-msg">
+                <div class="chat-avatar ai-avatar"><i data-lucide="sparkles"></i></div>
+                <div class="chat-bubble ai-bubble">
+                    <div class="chat-name">Bizflow Gemini AI</div>
+                    <div class="chat-text markdown-body" id="welcomeMsg">
+                        Welcome to your in-built <strong>Bizflow Gemini AI Workspace</strong>! <br/><br/>
+                        I have full real-time access to your store metrics (revenue, catalog stock, customer list). You can ask me <strong>ANY</strong> business, marketing, writing, or analysis question!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="typing-indicator" style="display:none;">
+            <i data-lucide="loader" class="spin-icon"></i>
+            <span>Bizflow Gemini is processing your prompt and generating bullet points...</span>
+        </div>
+
+        <!-- Bottom Floating Input Controls -->
+        <div class="gemini-input-bar">
+            <select id="chat_customer_tag" class="form-control customer-select" title="Optionally tag a customer">
+                <option value="">@ Mention Customer</option>
+                {% for c in customers %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+
+            <div style="flex:1; position:relative;">
+                <textarea id="chatInput" class="form-control chat-textarea" placeholder="Ask Bizflow Gemini anything about your store sales, customers, marketing ideas..." rows="1"></textarea>
+            </div>
+
+            <button type="button" class="btn btn-primary send-btn" onclick="submitChatMessage()">
+                <i data-lucide="send"></i> Ask Gemini
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.gemini-workspace-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gemini-header {
+    margin-bottom: 4px;
+}
+
+.gemini-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(99, 102, 241, 0.15));
+    border: 1px solid rgba(236, 72, 153, 0.4);
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #F472B6;
+    margin-bottom: 12px;
+}
+
+.gemini-title {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #FFFFFF, #E0E7FF, #F472B6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+}
+
+.gemini-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* 4-Card Quick Prompt Grid */
+.gemini-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.gemini-card {
+    background: rgba(18, 17, 38, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(12px);
+}
+
+.gemini-card:hover {
+    border-color: #EC4899;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
+}
+
+.gemini-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 12px;
+}
+.gemini-card-icon.purple { background: linear-gradient(135deg, #6366F1, #8B5CF6); }
+.gemini-card-icon.pink { background: linear-gradient(135deg, #EC4899, #F43F5E); }
+.gemini-card-icon.emerald { background: linear-gradient(135deg, #10B981, #06B6D4); }
+.gemini-card-icon.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+.gemini-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.gemini-card-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Chat Card Workspace */
+.gemini-chat-card {
+    padding: 0 !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 580px;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.chat-header-bar {
+    background: rgba(14, 12, 30, 0.9);
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gemini-sparkle-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #EC4899, #8B5CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+}
+
+.chat-stream-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: rgba(10, 8, 23, 0.5);
+}
+
+.chat-msg {
+    display: flex;
+    gap: 14px;
+    max-width: 90%;
+}
+.chat-msg.user-msg {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.chat-msg.ai-msg {
+    align-self: flex-start;
+}
+
+.chat-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+.ai-avatar {
+    background: linear-gradient(135deg, #EC4899, #8B5CF6);
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+}
+.user-avatar {
+    background: linear-gradient(135deg, #6366F1, #06B6D4);
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+}
+
+.chat-bubble {
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+}
+.ai-bubble {
+    background: rgba(18, 17, 38, 0.95);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    color: #E0E7FF;
+}
+.user-bubble {
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.chat-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #F472B6;
+    margin-bottom: 6px;
+}
+
+.copy-response-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #C7D2FE;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.copy-response-btn:hover {
+    background: rgba(236, 72, 153, 0.3);
+    color: white;
+}
+
+/* Markdown Formatting Styles */
+.markdown-body h2, .markdown-body h3 {
+    color: #FFFFFF;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+.markdown-body ul, .markdown-body ol {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+.markdown-body li {
+    margin-bottom: 4px;
+}
+.markdown-body blockquote {
+    border-left: 3px solid #EC4899;
+    padding-left: 12px;
+    color: #F472B6;
+    margin: 10px 0;
+    background: rgba(236, 72, 153, 0.1);
+    border-radius: 4px;
+}
+
+.typing-indicator {
+    padding: 10px 24px;
+    font-size: 0.85rem;
+    color: #F472B6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 12, 30, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spin-icon {
+    animation: spin 1s linear infinite;
+    width: 16px;
+    height: 16px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.gemini-input-bar {
+    padding: 16px 24px;
+    background: rgba(14, 12, 30, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.customer-select {
+    width: 170px;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+}
+
+.chat-textarea {
+    border-radius: 24px;
+    padding: 12px 20px;
+    font-size: 0.92rem;
+    resize: none;
+}
+
+.send-btn {
+    border-radius: 24px;
+    padding: 12px 22px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('chatInput');
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitChatMessage();
+        }
+    });
+});
+
+function sendQuickPrompt(promptText) {
+    document.getElementById('chatInput').value = promptText;
+    submitChatMessage();
+}
+
+async function submitChatMessage() {
+    const input = document.getElementById('chatInput');
+    const custTag = document.getElementById('chat_customer_tag');
+    let message = input.value.trim();
+
+    if (!message) return;
+
+    if (custTag && custTag.value) {
+        message = `[Regarding Customer: ${custTag.value}] ${message}`;
+        custTag.value = '';
+    }
+
+    input.value = '';
+
+    // Hide cards grid to focus on chat stream
+    const grid = document.getElementById('geminiPromptGrid');
+    if (grid) grid.style.display = 'none';
+
+    // Append User Message
+    appendMessage('user', 'You', message);
+
+    // Show Typing Indicator
+    const typing = document.getElementById('typingIndicator');
+    typing.style.display = 'flex';
+    scrollToBottom();
+
+    try {
+        const response = await fetch('/api/ai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
+        typing.style.display = 'none';
+
+        if (data.reply) {
+            appendMessage('ai', 'Bizflow Gemini AI', data.reply);
+        } else {
+            appendMessage('ai', 'Bizflow Gemini AI', `Error: ${data.error || 'Unknown error'}`);
+        }
+    } catch (err) {
+        typing.style.display = 'none';
+        appendMessage('ai', 'Bizflow Gemini AI', 'Error connecting to Gemini AI service.');
+    }
+}
+
+function appendMessage(sender, name, rawText) {
+    const stream = document.getElementById('chatStream');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `chat-msg ${sender}-msg`;
+
+    const icon = sender === 'ai' ? 'sparkles' : 'user';
+    const msgId = 'msg_' + Date.now() + Math.floor(Math.random() * 1000);
+    
+    // Parse Markdown using Marked.js if available
+    let htmlContent = rawText;
+    if (window.marked && sender === 'ai') {
+        htmlContent = marked.parse(rawText);
+    } else {
+        htmlContent = rawText.replace(/\n/g, '<br/>');
+    }
+
+    const copyBtnHtml = sender === 'ai' ? `<button type="button" class="copy-response-btn" onclick="copyText('${msgId}')"><i data-lucide="copy" style="width:12px; height:12px;"></i> Copy Response</button>` : '';
+
+    msgDiv.innerHTML = `
+        <div class="chat-avatar ${sender}-avatar">
+            <i data-lucide="${icon}"></i>
+        </div>
+        <div class="chat-bubble ${sender}-bubble">
+            <div class="chat-name">${name}</div>
+            <div class="chat-text markdown-body" id="${msgId}">${htmlContent}</div>
+            ${copyBtnHtml}
+        </div>
+    `;
+
+    stream.appendChild(msgDiv);
+    if (window.lucide) lucide.createIcons();
+    scrollToBottom();
+}
+
+function copyText(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
+        alert("Gemini AI response copied to clipboard!");
+    });
+}
+
+function scrollToBottom() {
+    const stream = document.getElementById('chatStream');
+    stream.scrollTop = stream.scrollHeight;
+}
+
+function clearChatHistory() {
+    const grid = document.getElementById('geminiPromptGrid');
+    if (grid) grid.style.display = 'grid';
+
+    const stream = document.getElementById('chatStream');
+    stream.innerHTML = `
+        <div class="chat-msg ai-msg">
+            <div class="chat-avatar ai-avatar"><i data-lucide="sparkles"></i></div>
+            <div class="chat-bubble ai-bubble">
+                <div class="chat-name">Bizflow Gemini AI</div>
+                <div class="chat-text markdown-body">Chat history cleared! What would you like Bizflow Gemini to help with next?</div>
+            </div>
+        </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+}
+</script>
+{% endblock %}

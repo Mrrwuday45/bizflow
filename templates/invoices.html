@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoices - Local Business CRM{% endblock %}
+{% block page_heading %}Invoice Documents & PDF Archives{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>Generated PDF Invoices</h1>
+        <p>Access, view, and print generated PDF tax invoices and receipts for customers.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:16px;">
+        <div style="position:relative; flex:1; max-width:350px;">
+            <input type="text" class="form-control table-search" data-table="invoicesTable" placeholder="Search invoice or customer name...">
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">
+            Total Invoices Generated: <b>{{ invoices|length }}</b>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="invoicesTable">
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Associated Sale</th>
+                    <th>Customer Name</th>
+                    <th>Invoice Date</th>
+                    <th>Amount (₹)</th>
+                    <th>PDF Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if invoices %}
+                    {% for inv in invoices %}
+                    <tr>
+                        <td><b>INV-{{ "%04d"|format(inv.invoice_id) }}</b></td>
+                        <td>#SALE-{{ inv.sale_id }}</td>
+                        <td><b>{{ inv.customer_name }}</b></td>
+                        <td style="color:var(--text-muted); font-size:0.85rem;">{{ inv.date[:16] }}</td>
+                        <td><strong style="color:#34D399;">₹{{ "%.2f"|format(inv.amount) }}</strong></td>
+                        <td>
+                            <div style="display:flex; gap:8px;">
+                                <a href="{{ url_for('download_invoice_file', invoice_id=inv.invoice_id) }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i data-lucide="eye" style="width:14px; height:14px;"></i> View PDF
+                                </a>
+                                <a href="{{ url_for('download_invoice_file', invoice_id=inv.invoice_id) }}?download=1" class="btn btn-secondary btn-sm">
+                                    <i data-lucide="download" style="width:14px; height:14px;"></i> Download
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align:center; color: var(--text-muted);">No invoices generated yet. Create a sale in the Sales & POS page to generate your first invoice!</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

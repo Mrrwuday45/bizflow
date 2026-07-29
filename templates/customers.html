@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Customers - Local Business CRM{% endblock %}
+{% block page_heading %}Customer Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>Customer Directory</h1>
+        <p>Manage customer contact details, view purchase history, and generate AI offers.</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('addCustomerModal')">
+        <i data-lucide="user-plus"></i> Add New Customer
+    </button>
+</div>
+
+<!-- Customer Table Card -->
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:16px;">
+        <div style="position:relative; flex:1; max-width:350px;">
+            <input type="text" class="form-control table-search" data-table="customersTable" placeholder="Search customer name, phone, or email...">
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">
+            Total Customers: <b>{{ customers|length }}</b>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="customersTable">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Orders</th>
+                    <th>Total Spend</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if customers %}
+                    {% for c in customers %}
+                    <tr>
+                        <td><b>{{ c.name }}</b></td>
+                        <td>{{ c.phone }}</td>
+                        <td>{{ c.email or '-' }}</td>
+                        <td style="max-width:180px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">{{ c.address or '-' }}</td>
+                        <td><span class="badge badge-emerald">{{ c.total_orders }} sales</span></td>
+                        <td><strong style="color:#6366F1;">₹{{ "%.2f"|format(c.total_spent) }}</strong></td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <a href="{{ url_for('ai_assistant_page', customer_id=c.customer_id) }}" class="btn btn-secondary btn-sm" title="Generate AI Followup Message">
+                                    <i data-lucide="sparkles" style="color:#8B5CF6; width:14px; height:14px;"></i> AI Message
+                                </a>
+                                <button class="btn btn-secondary btn-sm" onclick="openEditModal({{ c.customer_id }}, '{{ c.name|escape }}', '{{ c.phone|escape }}', '{{ (c.email or '')|escape }}', '{{ (c.address or '')|escape }}')">
+                                    <i data-lucide="edit" style="width:14px; height:14px;"></i>
+                                </button>
+                                <form action="{{ url_for('delete_customer_route', customer_id=c.customer_id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this customer?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:var(--text-muted);">No customers found. Click 'Add New Customer' to create one!</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal: Add Customer -->
+<div class="modal-overlay" id="addCustomerModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 style="font-size:1.15rem; font-weight:700;">Add New Customer</h2>
+            <button class="modal-close" onclick="closeModal('addCustomerModal')">&times;</button>
+        </div>
+        <form action="{{ url_for('add_customer_route') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Rahul Kumar" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="text" name="phone" class="form-control" placeholder="e.g. 9876543210" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="rahul@example.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <textarea name="address" class="form-control" placeholder="Street, City, Pincode"></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addCustomerModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Customer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Edit Customer -->
+<div class="modal-overlay" id="editCustomerModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 style="font-size:1.15rem; font-weight:700;">Edit Customer Details</h2>
+            <button class="modal-close" onclick="closeModal('editCustomerModal')">&times;</button>
+        </div>
+        <form id="editCustomerForm" action="" method="POST">
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" id="edit_name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="text" id="edit_phone" name="phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="edit_email" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <textarea id="edit_address" name="address" class="form-control"></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editCustomerModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Customer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, name, phone, email, address) {
+    document.getElementById('editCustomerForm').action = '/customers/edit/' + id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_phone').value = phone;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_address').value = address;
+    openModal('editCustomerModal');
+}
+</script>
+{% endblock %}
