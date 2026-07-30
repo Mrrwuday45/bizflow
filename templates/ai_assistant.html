@@ -11,9 +11,14 @@
     
     <!-- Gemini Header Greeting -->
     <div class="gemini-header">
-        <div class="gemini-badge">
-            <i data-lucide="sparkles" style="color:#EC4899; width:16px;"></i>
-            <span>Bizflow Gemini 2.5 Flash</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div class="gemini-badge">
+                <i data-lucide="sparkles" style="color:#EC4899; width:16px;"></i>
+                <span>Bizflow Gemini 2.0 / 2.5 Copilot</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('apiKeyModal')">
+                <i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure Gemini API Key
+            </button>
         </div>
         <h1 class="gemini-title">Hello, {{ current_user['name'] if current_user else 'Store Manager' }}! 👋</h1>
         <p class="gemini-subtitle">How can Bizflow Gemini help grow your business today?</p>
@@ -78,7 +83,7 @@
         <!-- Typing Indicator -->
         <div id="typingIndicator" class="typing-indicator" style="display:none;">
             <i data-lucide="loader" class="spin-icon"></i>
-            <span>Bizflow Gemini is processing your prompt and generating bullet points...</span>
+            <span>Bizflow Gemini is processing your prompt and generating response...</span>
         </div>
 
         <!-- Bottom Floating Input Controls -->
@@ -97,6 +102,30 @@
             <button type="button" class="btn btn-primary send-btn" onclick="submitChatMessage()">
                 <i data-lucide="send"></i> Ask Gemini
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Configure Gemini API Key -->
+<div class="modal-overlay" id="apiKeyModal">
+    <div class="modal-box card" style="max-width:480px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-size:1.2rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="key" style="color:#F59E0B;"></i> Configure Gemini API Key
+            </h3>
+            <button type="button" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;" onclick="closeModal('apiKeyModal')">✕</button>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+            Enter your Google AI Studio API Key (starts with <code>AIzaSy...</code>) to enable live Google Gemini 2.0 / 1.5 model generation.
+            Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#8B5CF6;">Google AI Studio</a>.
+        </p>
+        <div class="form-group">
+            <label class="form-label">Google Gemini API Key</label>
+            <input type="password" id="gemini_key_input" class="form-control" placeholder="AIzaSy..." value="">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('apiKeyModal')">Cancel</button>
+            <button type="button" class="btn btn-emerald" onclick="saveGeminiKey()">Save API Key</button>
         </div>
     </div>
 </div>
@@ -123,7 +152,7 @@
     font-size: 0.82rem;
     font-weight: 700;
     color: #F472B6;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .gemini-title {
@@ -507,6 +536,31 @@ function clearChatHistory() {
         </div>
     `;
     if (window.lucide) lucide.createIcons();
+}
+
+async function saveGeminiKey() {
+    const input = document.getElementById('gemini_key_input');
+    const key = input.value.trim();
+    if (!key) {
+        alert("Please enter a valid Gemini API key.");
+        return;
+    }
+    try {
+        const res = await fetch('/api/save-gemini-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gemini_api_key: key })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("Gemini API Key saved successfully! Gemini Copilot will now use your key for live responses.");
+            closeModal('apiKeyModal');
+        } else {
+            alert("Failed to save key: " + data.message);
+        }
+    } catch (e) {
+        alert("Error saving API key.");
+    }
 }
 </script>
 {% endblock %}
