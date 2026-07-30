@@ -189,7 +189,7 @@ def get_low_stock_products(user_id, threshold=5):
 
 # ================= SALES MODEL (Per-User Isolated) =================
 
-def create_sale(user_id, customer_id, items, discount=0.0):
+def create_sale(user_id, customer_id, items, discount=0.0, payment_method="Cash"):
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -215,11 +215,13 @@ def create_sale(user_id, customer_id, items, discount=0.0):
         })
     
     final_amount = max(0.0, total_amount - discount)
+    if not payment_method:
+        payment_method = "Cash"
     
     cursor.execute('''
-        INSERT INTO sales (user_id, customer_id, total_amount, discount)
-        VALUES (?, ?, ?, ?)
-    ''', (user_id, customer_id, final_amount, discount))
+        INSERT INTO sales (user_id, customer_id, total_amount, discount, payment_method)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (user_id, customer_id, final_amount, discount, payment_method))
     sale_id = cursor.lastrowid
     
     for p in processed_items:
@@ -292,7 +294,7 @@ def add_invoice_record(user_id, sale_id, customer_id, file_path, amount):
 def get_all_invoices(user_id):
     conn = get_db_connection()
     invoices = conn.execute('''
-        SELECT i.*, c.name as customer_name, s.date as sale_date
+        SELECT i.*, c.name as customer_name, s.date as sale_date, s.payment_method
         FROM invoices i
         JOIN customers c ON i.customer_id = c.customer_id
         JOIN sales s ON i.sale_id = s.sale_id

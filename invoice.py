@@ -14,6 +14,15 @@ from reportlab.lib.units import inch
 from config import INVOICES_DIR
 from models import get_sale_details, add_invoice_record
 
+def format_pdf_date(date_str):
+    if not date_str:
+        return datetime.now().strftime("%d %b %Y, %I:%M %p")
+    try:
+        dt = datetime.strptime(str(date_str)[:19], "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%d %b %Y, %I:%M %p")
+    except Exception:
+        return str(date_str)
+
 def generate_pdf_invoice(sale_id, user_id):
     sale = get_sale_details(sale_id, user_id)
     if not sale:
@@ -37,7 +46,7 @@ def generate_pdf_invoice(sale_id, user_id):
         'DocTitle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=24,
+        fontSize=22,
         textColor=colors.HexColor('#4F46E5'),
         spaceAfter=6
     )
@@ -109,11 +118,14 @@ def generate_pdf_invoice(sale_id, user_id):
 
     elements = []
 
+    formatted_date = format_pdf_date(sale.get('date'))
+    payment_method = sale.get('payment_method') or 'Cash'
+
     # Header section
     header_data = [
         [
-            Paragraph("<b>BIZFLOW AI CRM</b><br/>Customer Relationship & Invoice System", subtitle_style),
-            Paragraph(f"<b>INVOICE</b><br/><font size=9 color='#6B7280'>Inv #: INV-{sale_id:04d}<br/>Date: {sale['date'][:19]}</font>", ParagraphStyle('RHeader', parent=subtitle_style, alignment=2))
+            Paragraph("<b>BIZFLOW STORE</b><br/>Customer Relationship & Invoice System", subtitle_style),
+            Paragraph(f"<b>INVOICE RECEIPT</b><br/><font size=9 color='#6B7280'>Inv #: INV-{sale_id:04d}<br/>Date: {formatted_date}</font>", ParagraphStyle('RHeader', parent=subtitle_style, alignment=2))
         ]
     ]
     header_table = Table(header_data, colWidths=[3.5*inch, 3.5*inch])
@@ -132,12 +144,12 @@ def generate_pdf_invoice(sale_id, user_id):
     Address: {sale['customer_address'] or 'N/A'}
     """
     
-    biz_info = """
+    biz_info = f"""
     <b>Issued By:</b><br/>
-    <b>Bizflow AI Store</b><br/>
+    <b>Bizflow Store</b><br/>
     Main Street Business Hub<br/>
     Support: +91 98765 43210<br/>
-    Email: contact@bizflow.ai
+    Email: support@bizflowcrm.com
     """
 
     info_data = [
@@ -159,8 +171,8 @@ def generate_pdf_invoice(sale_id, user_id):
             Paragraph("#", table_header_style),
             Paragraph("Item & Description", table_header_style),
             Paragraph("Qty", table_header_style),
-            Paragraph("Unit Price (₹)", table_header_style),
-            Paragraph("Subtotal (₹)", table_header_style)
+            Paragraph("Unit Price (Rs.)", table_header_style),
+            Paragraph("Subtotal (Rs.)", table_header_style)
         ]
     ]
 
@@ -192,23 +204,24 @@ def generate_pdf_invoice(sale_id, user_id):
     grand_total = sale['total_amount']
 
     summary_data = [
-        [Paragraph("Items Subtotal:", bold_style), Paragraph(f"₹ {subtotal_sum:.2f}", ParagraphStyle('R', parent=bold_style, alignment=2))],
-        [Paragraph("Discount Applied:", normal_style), Paragraph(f"- ₹ {discount:.2f}", ParagraphStyle('R', parent=normal_style, alignment=2))],
-        [Paragraph("<b>Grand Total:</b>", title_style), Paragraph(f"<b>₹ {grand_total:.2f}</b>", ParagraphStyle('RT', parent=title_style, fontSize=16, alignment=2))]
+        [Paragraph("Items Subtotal:", bold_style), Paragraph(f"Rs. {subtotal_sum:.2f}", ParagraphStyle('R', parent=bold_style, alignment=2))],
+        [Paragraph("Discount Applied:", normal_style), Paragraph(f"- Rs. {discount:.2f}", ParagraphStyle('R', parent=normal_style, alignment=2))],
+        [Paragraph("Payment Method:", normal_style), Paragraph(f"<b>{payment_method}</b> (Paid In Full)", ParagraphStyle('RMethod', parent=normal_style, alignment=2, textColor=colors.HexColor('#059669')))],
+        [Paragraph("<b>Grand Total:</b>", title_style), Paragraph(f"<b>Rs. {grand_total:.2f}</b>", ParagraphStyle('RT', parent=title_style, fontSize=16, alignment=2))]
     ]
-    summary_table = Table(summary_data, colWidths=[5.0*inch, 2.0*inch])
+    summary_table = Table(summary_data, colWidths=[4.8*inch, 2.2*inch])
     summary_table.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('LINEABOVE', (0,2), (-1,2), 1, colors.HexColor('#4F46E5')),
+        ('LINEABOVE', (0,3), (-1,3), 1, colors.HexColor('#4F46E5')),
         ('PADDING', (0,0), (-1,-1), 4),
     ]))
     elements.append(summary_table)
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 25))
 
-    footer_text = """
+    footer_text = f"""
     <b>Thank you for your business!</b><br/>
-    Terms: Payment received with thanks. This is a computer-generated tax invoice.
+    Payment Status: <b>PAID VIA {payment_method.upper()}</b> • Terms: Payment received with thanks. This is an official computer-generated tax invoice.
     """
     elements.append(Paragraph(footer_text, subtitle_style))
 

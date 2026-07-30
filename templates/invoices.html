@@ -28,6 +28,7 @@
                     <th>Invoice ID</th>
                     <th>Associated Sale</th>
                     <th>Customer Name</th>
+                    <th>Payment Method</th>
                     <th>Invoice Date</th>
                     <th>Amount (₹)</th>
                     <th>PDF Actions</th>
@@ -40,6 +41,7 @@
                         <td><b>INV-{{ "%04d"|format(inv.invoice_id) }}</b></td>
                         <td>#SALE-{{ inv.sale_id }}</td>
                         <td><b>{{ inv.customer_name }}</b></td>
+                        <td><span class="badge badge-indigo">{{ inv.payment_method or 'Cash' }}</span></td>
                         <td style="color:var(--text-muted); font-size:0.85rem;">{{ inv.date[:16] }}</td>
                         <td><strong style="color:#34D399;">₹{{ "%.2f"|format(inv.amount) }}</strong></td>
                         <td>
@@ -56,7 +58,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="6" style="text-align:center; color: var(--text-muted);">No invoices generated yet. Create a sale in the Sales & POS page to generate your first invoice!</td>
+                        <td colspan="7" style="text-align:center; color: var(--text-muted);">No invoices generated yet. Create a sale in the Sales & POS page to generate your first invoice!</td>
                     </tr>
                 {% endif %}
             </tbody>

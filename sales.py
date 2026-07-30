@@ -5,7 +5,7 @@ from models import create_sale, get_all_sales, get_sale_details
 
 class SalesManager:
     @staticmethod
-    def process_sale(user_id, customer_id, items, discount=0.0):
+    def process_sale(user_id, customer_id, items, discount=0.0, payment_method="Cash"):
         """
         Processes a transaction for the logged in user and returns sale_id.
         """
@@ -14,7 +14,7 @@ class SalesManager:
         if not items or len(items) == 0:
             raise ValueError("At least one product item is required for a sale.")
             
-        sale_id = create_sale(user_id, customer_id, items, discount)
+        sale_id = create_sale(user_id, customer_id, items, discount, payment_method)
         return sale_id
 
     @staticmethod

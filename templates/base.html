@@ -78,11 +78,18 @@
     <div class="main-wrapper">
         <!-- Top Bar Header -->
         <header class="top-header">
-            <div class="header-title">{% block page_heading %}Dashboard{% endblock %}</div>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <div class="header-title">{% block page_heading %}Dashboard{% endblock %}</div>
+                <span class="badge badge-emerald" style="font-size:0.75rem;"><i data-lucide="zap" style="width:12px;"></i> System Live</span>
+            </div>
+
             <div class="header-actions">
+                <a href="{{ url_for('ai_assistant_page') }}" class="btn btn-secondary btn-sm" title="Ask Gemini AI">
+                    <i data-lucide="sparkles" style="color:#EC4899; width:14px; height:14px;"></i> AI Co-Pilot
+                </a>
                 <div class="user-badge">
                     <span class="status-dot"></span>
-                    <span><strong>{{ current_user['name'] if current_user else 'Store Admin' }}</strong> ({{ current_user['role'] if current_user else 'Admin' }})</span>
+                    <span><strong>{{ current_user['name'] if current_user else 'Store Manager' }}</strong> <span style="opacity:0.75; font-size:0.78rem;">({{ current_user['role'] if current_user else 'Store Manager' }})</span></span>
                 </div>
                 <a href="{{ url_for('logout_route') }}" class="btn btn-secondary btn-sm" title="Log out of session">
                     <i data-lucide="log-out" style="width:14px; height:14px;"></i> Logout

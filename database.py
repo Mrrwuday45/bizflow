@@ -61,12 +61,18 @@ def init_db():
             customer_id INTEGER NOT NULL,
             total_amount REAL NOT NULL,
             discount REAL DEFAULT 0.0,
+            payment_method TEXT DEFAULT 'Cash',
             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             status TEXT DEFAULT 'Completed',
             FOREIGN KEY (user_id) REFERENCES users (user_id),
             FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
         )
     ''')
+
+    try:
+        cursor.execute("ALTER TABLE sales ADD COLUMN payment_method TEXT DEFAULT 'Cash'")
+    except Exception:
+        pass
     
     # Sale Items Table
     cursor.execute('''

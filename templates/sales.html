@@ -1,44 +1,77 @@
 {% extends 'base.html' %}
 
-{% block title %}Sales & POS - Local Business CRM{% endblock %}
+{% block title %}Sales & POS - BizFlow AI CRM{% endblock %}
 {% block page_heading %}Point of Sale & Billing Terminal{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div class="page-title-group">
-        <h1>Sales Checkout & History</h1>
-        <p>Record customer purchases, calculate bills with discounts, and generate instant PDF invoices.</p>
+        <h1>Sales Checkout & POS Terminal 🛒</h1>
+        <p>Record customer purchases, apply cart discounts, print receipts, and issue instant PDF invoices.</p>
+    </div>
+    <div style="display:flex; gap:12px;">
+        <button type="button" class="btn btn-secondary" onclick="openModal('quickCustomerModal')">
+            <i data-lucide="user-plus"></i> + Quick Add Customer
+        </button>
     </div>
 </div>
 
-<div class="grid-2" style="grid-template-columns: 1.2fr 0.8fr;">
+<!-- Main POS Split View Grid -->
+<div class="grid-2" style="grid-template-columns: 1.25fr 0.75fr; gap: 24px;">
     <!-- POS Terminal Form -->
     <div class="card">
-        <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
-            <i data-lucide="shopping-bag" style="color:var(--primary);"></i> Create New Transaction
-        </h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+            <h2 style="font-size:1.15rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="shopping-cart" style="color:var(--primary);"></i> Create New Transaction
+            </h2>
+            <span class="badge badge-emerald"><i data-lucide="zap" style="width:12px;"></i> Live POS Ready</span>
+        </div>
 
         <form action="{{ url_for('create_sale_route') }}" method="POST" id="posForm">
             <!-- Hidden JSON input for items -->
             <input type="hidden" name="items_json" id="pos_items_json" value="[]">
 
-            <!-- Step 1: Select Customer -->
+            <!-- Step 1: Select Customer & Quick Add -->
             <div class="form-group">
-                <label class="form-label">Select Customer *</label>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <label class="form-label" style="margin-bottom:0;">Select Customer *</label>
+                    <span style="font-size:0.78rem; color:var(--accent-pink); cursor:pointer;" onclick="openModal('quickCustomerModal')">+ Register New Customer</span>
+                </div>
                 <select name="customer_id" class="form-control" required>
-                    <option value="">-- Choose Customer --</option>
+                    <option value="">-- Select Customer --</option>
                     {% for c in customers %}
                     <option value="{{ c.customer_id }}">{{ c.name }} ({{ c.phone }})</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <!-- Step 2: Item Picker -->
+            <!-- Step 2: Quick Product Cards Selection Grid -->
+            <div style="margin-bottom:18px;">
+                <label class="form-label" style="color:white; display:flex; justify-content:space-between;">
+                    <span>Quick Select Product Card</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Click card to add 1 unit to cart</span>
+                </label>
+                <div class="pos-quick-products-grid">
+                    {% for p in products %}
+                        {% if p.quantity > 0 %}
+                        <div class="pos-product-card" onclick="quickAddProduct({{ p.product_id }}, '{{ p.product_name|escape }}', {{ p.price }}, {{ p.quantity }})">
+                            <div style="font-weight:700; color:white; font-size:0.88rem;">{{ p.product_name }}</div>
+                            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.78rem;">
+                                <span style="color:#34D399; font-weight:700;">₹{{ "%.2f"|format(p.price) }}</span>
+                                <span style="color:var(--text-muted);">Stock: {{ p.quantity }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Step 3: Product Dropdown Picker -->
             <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:18px;">
-                <label class="form-label" style="color:white;">Add Product to Cart</label>
+                <label class="form-label" style="color:white;">Or Search & Choose Product from Dropdown</label>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <select id="pos_product_select" class="form-control" style="flex:2; min-width:180px;">
-                        <option value="">-- Select Product --</option>
+                        <option value="">-- Choose Product --</option>
                         {% for p in products %}
                             {% if p.quantity > 0 %}
                             <option value="{{ p.product_id }}" data-name="{{ p.product_name|escape }}" data-price="{{ p.price }}" data-stock="{{ p.quantity }}">
@@ -54,7 +87,7 @@
                 </div>
             </div>
 
-            <!-- Step 3: Current Items Table -->
+            <!-- Step 4: Current Cart Items Table -->
             <div class="table-container" style="margin-bottom:18px;">
                 <table>
                     <thead>
@@ -68,44 +101,74 @@
                     </thead>
                     <tbody id="pos_items_tbody">
                         <tr>
-                            <td colspan="5" style="text-align:center; color: var(--text-muted);">No items added to current sale yet.</td>
+                            <td colspan="5" style="text-align:center; color: var(--text-muted); padding:24px 0;">No items added to current sale yet. Click product cards above.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Step 4: Discount & Totals -->
-            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(15,23,42,0.6); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:20px;">
+            <!-- Step 5: Payment Method Selector -->
+            <div style="margin-bottom:18px;">
+                <label class="form-label">Payment Method</label>
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+                    <div class="pay-method-chip active" onclick="selectPayMethod(this)">
+                        <input type="radio" name="payment_method" value="Cash" checked style="display:none;">
+                        <span>💵 Cash</span>
+                    </div>
+                    <div class="pay-method-chip" onclick="selectPayMethod(this)">
+                        <input type="radio" name="payment_method" value="Card" style="display:none;">
+                        <span>💳 Card POS</span>
+                    </div>
+                    <div class="pay-method-chip" onclick="selectPayMethod(this)">
+                        <input type="radio" name="payment_method" value="UPI" style="display:none;">
+                        <span>📱 UPI / QR</span>
+                    </div>
+                    <div class="pay-method-chip" onclick="selectPayMethod(this)">
+                        <input type="radio" name="payment_method" value="NetBanking" style="display:none;">
+                        <span>🏦 Bank Transfer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Discount & Totals Breakdown -->
+            <div style="display:flex; justify-content:space-between; align-items:center; background:linear-gradient(135deg, rgba(30,27,75,0.7), rgba(15,23,42,0.8)); padding:18px 20px; border-radius:var(--radius-md); border:1px solid rgba(139,92,246,0.3); margin-bottom:20px;">
                 <div style="width:160px;">
                     <label class="form-label">Discount (₹)</label>
                     <input type="number" step="0.01" name="discount" id="pos_discount_input" class="form-control" value="0.00" oninput="renderPosTable()">
                 </div>
                 <div style="text-align:right;">
                     <div style="font-size:0.85rem; color:var(--text-muted);">Subtotal: <span id="pos_subtotal">₹0.00</span></div>
-                    <div style="font-size:1.4rem; font-weight:700; color:#34D399;">Grand Total: <span id="pos_grand_total">₹0.00</span></div>
+                    <div style="font-size:1.6rem; font-weight:800; color:#34D399; margin-top:2px;">Grand Total: <span id="pos_grand_total">₹0.00</span></div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-emerald" style="width:100%; justify-content:center; padding:14px; font-size:1.05rem;">
+            <button type="submit" class="btn btn-emerald" style="width:100%; justify-content:center; padding:15px; font-size:1.05rem;">
                 <i data-lucide="check-circle"></i> Complete Sale & Generate PDF Invoice
             </button>
         </form>
     </div>
 
-    <!-- Recent Sales Transaction Log -->
+    <!-- Recent Sales Transaction Log & Live Search -->
     <div class="card">
-        <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
-            <i data-lucide="history" style="color:var(--accent-amber);"></i> Sales Transaction Log
-        </h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2 style="font-size:1.15rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="history" style="color:var(--accent-amber);"></i> Transaction History Log
+            </h2>
+        </div>
 
-        <div class="table-container" style="max-height:500px; overflow-y:auto;">
-            <table>
+        <!-- Table Live Search Filter Input -->
+        <div style="margin-bottom:14px;">
+            <input type="text" class="form-control table-search" data-table="salesTable" placeholder="🔍 Search sale ID, customer name..." style="font-size:0.88rem;">
+        </div>
+
+        <div class="table-container" style="max-height:550px; overflow-y:auto;">
+            <table id="salesTable">
                 <thead>
                     <tr>
                         <th>Sale ID</th>
                         <th>Customer</th>
                         <th>Amount</th>
-                        <th>Invoice PDF</th>
+                        <th>Receipt</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -113,18 +176,23 @@
                         {% for s in sales %}
                         <tr>
                             <td><b>#SALE-{{ s.sale_id }}</b><br/><span style="font-size:0.75rem; color:var(--text-muted);">{{ s.date[:16] }}</span></td>
-                            <td>{{ s.customer_name }}</td>
+                            <td><b>{{ s.customer_name }}</b></td>
                             <td><strong style="color:#34D399;">₹{{ "%.2f"|format(s.total_amount) }}</strong></td>
                             <td>
-                                <a href="{{ url_for('generate_invoice_pdf_route', sale_id=s.sale_id) }}" class="btn btn-secondary btn-sm" target="_blank" title="Download PDF Receipt">
-                                    <i data-lucide="file-text" style="color:#6366F1; width:14px; height:14px;"></i> PDF
-                                </a>
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="openReceiptModal('{{ s.sale_id }}', '{{ s.customer_name|escape }}', '{{ s.total_amount }}', '{{ s.date[:16] }}', '{{ url_for('generate_invoice_pdf_route', sale_id=s.sale_id) }}')" title="View Digital Receipt">
+                                        <i data-lucide="receipt" style="width:13px; color:#EC4899;"></i> Receipt
+                                    </button>
+                                    <a href="{{ url_for('generate_invoice_pdf_route', sale_id=s.sale_id) }}" class="btn btn-primary btn-sm" target="_blank" title="Download PDF Invoice">
+                                        <i data-lucide="file-text" style="width:13px;"></i> PDF
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="4" style="text-align:center; color: var(--text-muted);">No sales recorded yet.</td>
+                            <td colspan="4" style="text-align:center; color: var(--text-muted); padding: 30px 0;">No sales recorded yet.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -132,4 +200,154 @@
         </div>
     </div>
 </div>
+
+<!-- Modal 1: Quick Customer Add -->
+<div class="modal-overlay" id="quickCustomerModal">
+    <div class="modal-box card" style="max-width:480px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-size:1.2rem; font-weight:700; color:white;">Quick Register Customer</h3>
+            <button type="button" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;" onclick="closeModal('quickCustomerModal')">✕</button>
+        </div>
+        <form action="{{ url_for('add_customer_route') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Customer Name *</label>
+                <input type="text" name="name" class="form-control" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="text" name="phone" class="form-control" placeholder="10-digit mobile number" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="Optional email">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('quickCustomerModal')">Cancel</button>
+                <button type="submit" class="btn btn-emerald">Save Customer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Digital Receipt Modal -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal-box card" style="max-width:460px; background:#0D0A22; border:1px solid rgba(139,92,246,0.4);">
+        <div style="text-align:center; padding-bottom:16px; border-bottom:1px dashed rgba(255,255,255,0.15); margin-bottom:16px;">
+            <div style="font-size:1.4rem; font-weight:800; background:linear-gradient(90deg, #FFFFFF, #F472B6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">BIZFLOW STORE</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">Official POS Digital Sales Receipt</div>
+            <div id="receipt_sale_id" style="font-weight:700; color:#34D399; margin-top:8px; font-size:1.1rem;">#SALE-00</div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:0.9rem; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted);">Customer:</span>
+                <strong id="receipt_customer" style="color:white;">--</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted);">Date & Time:</span>
+                <span id="receipt_date" style="color:white;">--</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:var(--text-muted);">Payment Status:</span>
+                <span class="badge badge-emerald">PAID IN FULL</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15); font-size:1.2rem; font-weight:800;">
+                <span>Total Paid:</span>
+                <span id="receipt_total" style="color:#34D399;">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Receipt QR Code Placeholder -->
+        <div style="text-align:center; padding:16px; background:white; border-radius:12px; margin-bottom:20px;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=BIZFLOW-VERIFIED-RECEIPT" alt="Receipt QR Code" style="width:100px; height:100px;">
+            <div style="font-size:0.75rem; color:#64748B; margin-top:6px;">Scan to Verify Digital Transaction</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+            <button type="button" class="btn btn-secondary" onclick="window.print()">
+                <i data-lucide="printer"></i> Print Receipt
+            </button>
+            <a id="receipt_pdf_btn" href="#" class="btn btn-primary" target="_blank">
+                <i data-lucide="file-text"></i> Open PDF Invoice
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.pos-quick-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+    margin-top: 6px;
+    padding-right: 4px;
+}
+
+.pos-product-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pos-product-card:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.15));
+    border-color: rgba(236, 72, 153, 0.4);
+    transform: translateY(-2px);
+}
+
+.pay-method-chip {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.pay-method-chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(139, 92, 246, 0.4);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.pay-method-chip.active, .pay-method-chip:has(input:checked) {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5) !important;
+    transform: translateY(-1px);
+}
+
+.qty-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    background: #EC4899;
+}
+</style>
 {% endblock %}

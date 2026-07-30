@@ -36,7 +36,7 @@ def seed_admin_if_empty():
     if not admin:
         create_user(
             username="admin", 
-            email="admin@bizflow.ai", 
+            email="admin@store.com", 
             password="admin123", 
             name="Store Admin", 
             role="Admin",
@@ -93,17 +93,17 @@ def register_route():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip()
+        email = request.form.get('email', '').strip() or f"{username}@store.com"
         password = request.form.get('password', '').strip()
         reset_question = request.form.get('reset_question', 'What is your store name?').strip()
         reset_answer = request.form.get('reset_answer', '').strip()
 
-        if not username or not email or not password or not name:
+        if not username or not password or not name:
             flash("All required fields must be filled out.", 'error')
             return render_template('auth.html', mode='register')
 
-        if get_user_by_username_or_email(username) or get_user_by_username_or_email(email):
-            flash("Username or email is already registered.", 'error')
+        if get_user_by_username_or_email(username):
+            flash("Username is already registered.", 'error')
             return render_template('auth.html', mode='register')
 
         try:
@@ -272,6 +272,7 @@ def create_sale_route():
     user_id = session['user_id']
     customer_id = request.form.get('customer_id')
     discount = float(request.form.get('discount', 0.0) or 0.0)
+    payment_method = request.form.get('payment_method', 'Cash').strip() or 'Cash'
     items_json = request.form.get('items_json', '[]')
     
     try:
@@ -280,10 +281,10 @@ def create_sale_route():
             flash('Please add at least one item to the sale cart.', 'error')
             return redirect(url_for('sales_page'))
 
-        sale_id = SalesManager.process_sale(user_id, int(customer_id), items, discount)
+        sale_id = SalesManager.process_sale(user_id, int(customer_id), items, discount, payment_method)
         filename, filepath = generate_pdf_invoice(sale_id, user_id)
         
-        flash(f'Sale #SALE-{sale_id} completed successfully! PDF Invoice generated.', 'success')
+        flash(f'Sale #SALE-{sale_id} completed via {payment_method}! PDF Invoice generated.', 'success')
     except Exception as e:
         flash(f'Sale processing failed: {str(e)}', 'error')
 

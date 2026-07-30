@@ -116,4 +116,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', animateCounters);
   animateCounters(); // Trigger on load if already in view
+
+  // Interactive Growth Savings Calculator
+  const salesSlider = document.getElementById('calc-sales-slider');
+  const sliderValDisplay = document.getElementById('calc-slider-val');
+  const resHours = document.getElementById('calc-res-hours');
+  const resRevenue = document.getElementById('calc-res-revenue');
+  const resInvoices = document.getElementById('calc-res-invoices');
+  const resInsights = document.getElementById('calc-res-insights');
+
+  if (salesSlider) {
+    salesSlider.addEventListener('input', (e) => {
+      const sales = parseInt(e.target.value);
+      if (sliderValDisplay) sliderValDisplay.innerText = `$${sales.toLocaleString()} / mo`;
+      
+      const hoursSaved = Math.round((sales / 1000) * 4.5 + 8);
+      const estRevenueBoost = Math.round(sales * 0.22);
+      const autoInvoices = Math.round(sales / 120);
+      const aiInsights = Math.round(sales / 350 + 12);
+
+      if (resHours) resHours.innerText = `${hoursSaved} Hrs`;
+      if (resRevenue) resRevenue.innerText = `+$${estRevenueBoost.toLocaleString()}`;
+      if (resInvoices) resInvoices.innerText = `${autoInvoices}`;
+      if (resInsights) resInsights.innerText = `${aiInsights}`;
+    });
+  }
 });

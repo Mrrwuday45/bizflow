@@ -409,7 +409,95 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
+    <!-- Interactive Growth Savings Calculator Section -->
+    <section class="lp-calc-section">
+        <div class="lp-container">
+            <div class="lp-calc-card">
+                <div>
+                    <span class="lp-section-tag" style="color:#EC4899;">INTERACTIVE CALCULATOR</span>
+                    <h2 style="font-family:var(--lp-font-display); font-size:2.2rem; font-weight:800; color:white; margin-bottom:12px;">Calculate Your Growth Potential</h2>
+                    <p style="color:var(--lp-text-muted); font-size:1.02rem;">Drag the slider to see how much time and revenue BizFlow AI can save your business each month.</p>
+
+                    <div class="lp-calc-slider-group">
+                        <div class="lp-calc-slider-label">
+                            <span>Estimated Monthly Store Sales</span>
+                            <span id="calc-slider-val" style="color:#F472B6; font-size:1.2rem;">$15,000 / mo</span>
+                        </div>
+                        <input type="range" id="calc-sales-slider" class="lp-calc-slider" min="2000" max="100000" step="1000" value="15000">
+                    </div>
+                </div>
+
+                <div class="lp-calc-results-grid">
+                    <div class="lp-calc-res-box">
+                        <div class="lp-calc-res-val lp-gradient-text" id="calc-res-hours">76 Hrs</div>
+                        <div class="lp-calc-res-lbl">Time Saved / Month</div>
+                    </div>
+                    <div class="lp-calc-res-box">
+                        <div class="lp-calc-res-val lp-gradient-text-alt" id="calc-res-revenue">+$3,300</div>
+                        <div class="lp-calc-res-lbl">Est. Monthly Growth</div>
+                    </div>
+                    <div class="lp-calc-res-box">
+                        <div class="lp-calc-res-val" id="calc-res-invoices" style="color:#38BDF8;">125</div>
+                        <div class="lp-calc-res-lbl">PDF Invoices Issued</div>
+                    </div>
+                    <div class="lp-calc-res-box">
+                        <div class="lp-calc-res-val" id="calc-res-insights" style="color:#EC4899;">54</div>
+                        <div class="lp-calc-res-lbl">AI Co-Pilot Insights</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Comparison Table Section -->
+    <section class="lp-compare-section">
+        <div class="lp-container">
+            <div class="lp-section-header">
+                <span class="lp-section-tag">WHY BIZFLOW</span>
+                <h2 class="lp-section-title">BizFlow AI vs. Traditional Spreadsheets</h2>
+                <p class="lp-section-subtitle">See why modern business owners are switching from manual ledger sheets to BizFlow AI OS.</p>
+            </div>
+
+            <div class="lp-compare-table-wrapper">
+                <table class="lp-compare-table">
+                    <thead>
+                        <tr>
+                            <th>Capability & Feature</th>
+                            <th>Traditional Spreadsheets</th>
+                            <th class="col-bizflow">BizFlow AI OS ⚡</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AI Business Insights</strong></td>
+                            <td><span class="lp-cross-red"><i data-lucide="x" style="width:16px;"></i> None</span></td>
+                            <td class="col-bizflow"><span class="lp-check-green"><i data-lucide="sparkles" style="width:16px;"></i> Built-in Gemini AI Co-Pilot</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Automated PDF Invoicing</strong></td>
+                            <td><span class="lp-cross-red"><i data-lucide="x" style="width:16px;"></i> Manual Formatting</span></td>
+                            <td class="col-bizflow"><span class="lp-check-green"><i data-lucide="check" style="width:16px;"></i> 1-Click ReportLab PDFs</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-Time Stock Depletion</strong></td>
+                            <td><span class="lp-cross-red"><i data-lucide="x" style="width:16px;"></i> Prone to Errors</span></td>
+                            <td class="col-bizflow"><span class="lp-check-green"><i data-lucide="check" style="width:16px;"></i> Instant Auto-Depletion</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Customer 360 Tracking</strong></td>
+                            <td><span class="lp-cross-red"><i data-lucide="x" style="width:16px;"></i> Scattered Notes</span></td>
+                            <td class="col-bizflow"><span class="lp-check-green"><i data-lucide="check" style="width:16px;"></i> Full Purchase History & LTV</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mobile & Cloud Access</strong></td>
+                            <td><span class="lp-cross-red"><i data-lucide="x" style="width:16px;"></i> Local File Lock</span></td>
+                            <td class="col-bizflow"><span class="lp-check-green"><i data-lucide="check" style="width:16px;"></i> Any Device, Cloud Synced</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
     <section class="lp-steps-section" id="how-it-works">
         <div class="lp-container">
             <div class="lp-section-header">
@@ -464,11 +552,11 @@
                     </div>
                     <div class="lp-author">
                         <div class="lp-author-avatar" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
-                            MS
+                            UH
                         </div>
                         <div class="lp-author-info">
-                            <h4>Michael Scott</h4>
-                            <span>Owner, Urban Hardware & Tools</span>
+                            <h4>Urban Hardware Store</h4>
+                            <span>Verified Business Merchant</span>
                         </div>
                     </div>
                 </div>
@@ -487,11 +575,11 @@
                     </div>
                     <div class="lp-author">
                         <div class="lp-author-avatar" style="background: linear-gradient(135deg, #06B6D4, #10B981); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
-                            SL
+                            VB
                         </div>
                         <div class="lp-author-info">
-                            <h4>Sophia Lin</h4>
-                            <span>Founder, Velvet Boutique</span>
+                            <h4>Velvet Boutique</h4>
+                            <span>Verified Fashion Store</span>
                         </div>
                     </div>
                 </div>
@@ -510,11 +598,11 @@
                     </div>
                     <div class="lp-author">
                         <div class="lp-author-avatar" style="background: linear-gradient(135deg, #6366F1, #EC4899); display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">
-                            DR
+                            TS
                         </div>
                         <div class="lp-author-info">
-                            <h4>David Ross</h4>
-                            <span>Director, TechService Agency</span>
+                            <h4>TechService Agency</h4>
+                            <span>Verified Service Provider</span>
                         </div>
                     </div>
                 </div>

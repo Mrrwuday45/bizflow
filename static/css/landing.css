@@ -1186,3 +1186,171 @@ input:checked + .lp-slider:before {
   .lp-demo-pane.active { grid-template-columns: 1fr; }
   .lp-footer-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ================= VIBRANT COLORFUL ADVANCED COMPONENT STYLES ================= */
+
+/* Floating Animated Orbs */
+.lp-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.6;
+  animation: orb-drift 10s ease-in-out infinite alternate;
+}
+
+.lp-orb-pink {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #EC4899 0%, rgba(236, 72, 153, 0) 70%);
+  top: 10%;
+  right: -5%;
+}
+
+.lp-orb-cyan {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #06B6D4 0%, rgba(6, 182, 212, 0) 70%);
+  bottom: 20%;
+  left: -5%;
+  animation-delay: -5s;
+}
+
+@keyframes orb-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -40px) scale(1.1); }
+}
+
+/* Interactive Growth Savings Calculator Card */
+.lp-calc-section {
+  padding: 80px 0;
+}
+
+.lp-calc-card {
+  background: linear-gradient(135deg, rgba(24, 20, 52, 0.9), rgba(12, 10, 30, 0.95));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 28px;
+  padding: 44px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(99, 102, 241, 0.15);
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.lp-calc-slider-group {
+  margin-top: 24px;
+}
+
+.lp-calc-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: white;
+}
+
+.lp-calc-slider {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  accent-color: #EC4899;
+  cursor: pointer;
+}
+
+.lp-calc-results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.lp-calc-res-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.lp-calc-res-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(236, 72, 153, 0.4);
+}
+
+.lp-calc-res-val {
+  font-family: var(--lp-font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.lp-calc-res-lbl {
+  font-size: 0.82rem;
+  color: var(--lp-text-muted);
+  font-weight: 500;
+}
+
+/* Platform Comparison Table */
+.lp-compare-section {
+  padding: 80px 0;
+}
+
+.lp-compare-table-wrapper {
+  background: var(--lp-bg-card);
+  border: 1px solid var(--lp-border-subtle);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.lp-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.lp-compare-table th, .lp-compare-table td {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--lp-border-subtle);
+}
+
+.lp-compare-table th {
+  background: rgba(20, 17, 45, 0.9);
+  font-size: 1rem;
+  font-weight: 800;
+  color: white;
+}
+
+.lp-compare-table th.col-bizflow {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.3), rgba(18, 15, 38, 0.9));
+  color: #F472B6;
+  border-left: 1px solid rgba(139, 92, 246, 0.4);
+  border-right: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.lp-compare-table td.col-bizflow {
+  background: rgba(99, 102, 241, 0.05);
+  font-weight: 700;
+  color: white;
+  border-left: 1px solid rgba(139, 92, 246, 0.2);
+  border-right: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.lp-check-green {
+  color: #10B981;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lp-cross-red {
+  color: #F43F5E;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
