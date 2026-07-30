@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# ⚡ BizFlow AI — Next-Gen Local Business CRM & AI OS
+# BizFlow AI — Next-Gen Local Business CRM & AI OS
 
 ![BizFlow Banner](https://img.shields.io/badge/BizFlow-v2.5-6366F1?style=for-the-badge&logo=sparkles&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.1.3-000000?style=for-the-badge&logo=flask&logoColor=white)
@@ -13,29 +13,29 @@ It combines seamless customer tracking, instant POS cart checkout, automated Rep
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
-### 🎨 1. High-Aesthetic Landing Page (`/`)
+### 1. High-Aesthetic Landing Page (`/`)
 - **Vibrant Gradient Mesh Design**: Powered by a multi-layered radial ambient glow system blending Electric Indigo (`#6366F1`), Hot Pink (`#EC4899`), Neon Cyan (`#06B6D4`), and Emerald (`#10B981`).
 - **Interactive Live Demo Showcase**: Real-time interactive tab switcher demonstrating the Executive Dashboard, AI Co-Pilot, POS Cart Checkout, and PDF Invoicing.
 - **Pricing & FAQ**: Monthly vs. Annual pricing toggle with a 20% discount calculator and expandable FAQ accordions.
 - **Responsive Layout**: Designed to look stunning on desktops, tablets, and mobile devices.
 
-### 🤖 2. Intelligent AI Business Co-Pilot
+### 2. Intelligent AI Business Co-Pilot
 - **Natural Language Business Queries**: Ask questions like *"Who is our top spending customer this month?"* or *"Which products have low stock?"*.
 - **Automated Performance Summaries**: Instant AI insights on revenue trends, profit margin optimization, and customer re-engagement.
 - **Gemini API Integration**: Uses Google's `google-genai` SDK with fallback mock AI capability when offline or without an API key.
 
-### 🛒 3. Point of Sale (POS) & Stock Inventory
+### 3. Point of Sale (POS) & Stock Inventory
 - **Real-Time Cart Checkout**: Easily select customers, search products, apply custom discounts, and process transactions.
 - **Automated Stock Auto-Depletion**: Inventory quantities decrement automatically upon sale completion, preventing overselling.
 - **Product Catalog Management**: Organize products by category, price, stock levels, and descriptions.
 
-### 📄 4. One-Click PDF Invoicing Engine
+### 4. One-Click PDF Invoicing Engine
 - **ReportLab PDF Generation**: Automatically formats and generates clean, print-ready PDF invoices containing invoice numbers, line items, subtotal, tax, and discount totals.
 - **Instant Preview & Download**: Download or open invoices directly in browser with a single click.
 
-### 👥 5. Customer 360 & Relationship Management
+### 5. Customer 360 & Relationship Management
 - **Detailed Client Profiles**: Manage customer names, phone numbers, email addresses, physical addresses, total spending history, and purchase logs.
 - **Data Privacy & Multi-Tenancy**: Isolated per-user data access with password hashing and session encryption.
 
@@ -90,7 +90,7 @@ local_business_crm_bizflow/
 
 ---
 
-## 🚀 Quick Setup & Installation Guide
+## Quick Setup & Installation Guide
 
 ### Prerequisites
 Make sure you have **Python 3.10+** installed on your system.
@@ -181,19 +181,19 @@ The system provides a centralized platform for managing customer information, tr
 Built using Python, SQLite, and AI technologies, this CRM system helps businesses improve customer engagement, reduce manual work, and make data-driven decisions.
 
 ✨ Key Features
-🔐 Secure Authentication
+ Secure Authentication
 User login and access control system
 Secure management of business data
-📊 AI-Powered Dashboard
+AI-Powered Dashboard
 Business performance overview
 Customer statistics
 Sales insights
 Revenue tracking
-👥 Customer Management
+Customer Management
 Add, update, and delete customer records
 Store customer details and interaction history
 Track customer preferences and activities
-🎯 Lead Management
+Lead Management
 Manage potential customers
 Track lead status
 Follow-up reminders
@@ -201,25 +201,25 @@ Follow-up reminders
 Record sales transactions
 Monitor sales performance
 Generate sales summaries
-📦 Inventory Management
+Inventory Management
 Manage products and stock levels
 Track available inventory
 Prevent stock shortages
-🧾 Invoice Generation
+Invoice Generation
 Generate professional invoices
 Store billing history
 Export invoices as PDF
-🤖 AI Business Assistant
+AI Business Assistant
 Customer behavior analysis
 Sales prediction
 Personalized recommendations
 Automated insights
-📈 Reports & Analytics
+Reports & Analytics
 Sales reports
 Customer reports
 Inventory reports
 Business performance analytics
-🛠️ Technology Stack
+Technology Stack
 Programming Language
 Python
 Frontend / GUI
@@ -240,7 +240,7 @@ AI-Powered-Local-Business-CRM
 
 │ ├── main.py # Application entry point │ ├── gui/ # User interface screens │ ├── login.py │ ├── dashboard.py │ ├── customer.py │ └── inventory.py │ ├── database/ # Database files │ ├── database.py │ └── schema.sql │ ├── models/ # Data models │ ├── services/ # Business logic │ ├── customer_service.py │ ├── sales_service.py │ └── ai_service.py │ ├── reports/ # Generated reports │ ├── invoices/ # Generated invoices │ ├── assets/ # Images and resources │ ├── tests/ # Testing files │ ├── requirements.txt # Required Python packages │ └── README.md
 
-🎯 Purpose of the Project
+ Purpose of the Project
 
 The main goal of this project is to provide local businesses with a smart CRM solution that combines customer management, sales tracking, inventory control, and Artificial Intelligence.
 
