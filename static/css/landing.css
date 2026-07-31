@@ -41,6 +41,42 @@ body.landing-page {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+  display: block !important;
+}
+
+/* Multilingual Selector Control */
+.lang-selector-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 6px 12px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+  height: 40px;
+}
+.lang-selector-wrapper:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(255, 255, 255, 0.14);
+}
+.bizflow-lang-select {
+  background: transparent;
+  color: #F8FAFC;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  padding-right: 4px;
+  font-family: inherit;
+}
+.bizflow-lang-select option {
+  background: #110E29;
+  color: #F8FAFC;
+  font-size: 0.9rem;
+  padding: 8px;
 }
 
 /* Background Animated Gradient Mesh */
@@ -133,7 +169,7 @@ body.landing-page {
 .lp-nav-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 20px;
   list-style: none;
 }
 
@@ -152,7 +188,7 @@ body.landing-page {
 .lp-nav-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* Buttons */
