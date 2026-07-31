@@ -27,23 +27,28 @@ from ai_assistant import AIAssistant
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-# Initialize DB
-init_db()
+from datetime import timedelta
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 def seed_admin_if_empty():
-    admin = get_user_by_username_or_email("admin")
-    if not admin:
-        create_user(
-            username="admin", 
-            email="admin@store.com", 
-            password="admin123", 
-            name="Store Admin", 
-            role="Admin",
-            reset_question="What is your store name?",
-            reset_answer="Bizflow Store"
-        )
+    default_users = [
+        ("admin", "admin@store.com", "admin123", "Store Admin", "Admin"),
+        ("uday734", "uday734@store.com", "uday734", "Thota Uday kiran", "Admin")
+    ]
+    for username, email, password, name, role in default_users:
+        if not get_user_by_username_or_email(username):
+            try:
+                create_user(
+                    username=username, 
+                    email=email, 
+                    password=password, 
+                    name=name, 
+                    role=role,
+                    reset_question="What is your store name?",
+                    reset_answer="Bizflow Store"
+                )
+            except Exception:
+                pass
 
 seed_admin_if_empty()
 
@@ -79,6 +84,7 @@ def login_route():
 
         user = verify_user_login(identifier, password)
         if user:
+            session.permanent = True
             session['user_id'] = user['user_id']
             session['username'] = user['username']
             flash(f"Welcome back, {user['name']}!", 'success')
