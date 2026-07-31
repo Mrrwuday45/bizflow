@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,10 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        window.BIZFLOW_TRANSLATIONS = {{ translations|tojson|safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 
     <style>
         body {
@@ -167,6 +171,13 @@
             flex-direction: column;
             justify-content: center;
             background: rgba(15, 17, 32, 0.95);
+            position: relative;
+        }
+
+        .auth-top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
         }
 
         .auth-nav-tabs {
@@ -315,32 +326,44 @@
                     <span class="art-logo-text">Bizflow AI</span>
                 </a>
 
-                <h1 class="art-headline">Power Your Store with AI & Smart POS.</h1>
-                <p class="art-subtitle">Smart customer insights, automated ReportLab PDF invoices, and real-time inventory management.</p>
+                <h1 class="art-headline" data-i18n="hero_title_prefix">Power Your Store with AI & Smart POS.</h1>
+                <p class="art-subtitle" data-i18n="hero_desc">Smart customer insights, automated ReportLab PDF invoices, and real-time inventory management.</p>
 
                 <div class="art-features">
                     <div class="art-feature-item">
                         <div class="art-feature-icon purple"><i data-lucide="brain"></i></div>
-                        <span>AI Re-engagement & Customer Retention</span>
+                        <span data-i18n="feature_1_title">AI Business Co-Pilot</span>
                     </div>
                     <div class="art-feature-item">
                         <div class="art-feature-icon emerald"><i data-lucide="file-text"></i></div>
-                        <span>Instant Professional PDF Invoicing</span>
+                        <span data-i18n="feature_3_title">ReportLab PDF Invoices</span>
                     </div>
                     <div class="art-feature-item">
                         <div class="art-feature-icon pink"><i data-lucide="shopping-cart"></i></div>
-                        <span>Real-Time Sales POS & Inventory Alerts</span>
+                        <span data-i18n="feature_2_title">Instant POS Checkout</span>
                     </div>
                 </div>
             </div>
 
-            <div class="art-content" style="font-size:0.8rem; color:#94A3B8;">
+            <div class="art-content" style="font-size:0.8rem; color:#94A3B8;" data-i18n="footer_copyright">
                 © 2026 Bizflow AI Inc. All rights reserved.
             </div>
         </div>
 
         <!-- Right Side: Interactive Vibrant Form Panel -->
         <div class="auth-form-panel">
+            <!-- Language Selector Dropdown -->
+            <div class="auth-top-bar">
+                <div class="lang-selector-wrapper" title="Select Language">
+                    <i data-lucide="globe" style="width:14px; height:14px; color:#A7F3D0;"></i>
+                    <select class="bizflow-lang-select" aria-label="Select Language">
+                        {% for code, lang in supported_languages.items() %}
+                            <option value="{{ code }}" {% if current_lang == code %}selected{% endif %}>{{ lang.native }} ({{ lang.name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
             <!-- Flash Notifications -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -354,63 +377,63 @@
 
             <!-- Navigation Tabs -->
             <div class="auth-nav-tabs">
-                <button type="button" class="auth-tab-btn {% if mode == 'login' or not mode %}active{% endif %}" onclick="switchAuthTab('loginTab')">Sign In</button>
-                <button type="button" class="auth-tab-btn {% if mode == 'register' %}active{% endif %}" onclick="switchAuthTab('registerTab')">New User Register</button>
-                <button type="button" class="auth-tab-btn {% if mode == 'forgot' %}active{% endif %}" onclick="switchAuthTab('forgotTab')">Forgot Password</button>
+                <button type="button" class="auth-tab-btn {% if mode == 'login' or not mode %}active{% endif %}" onclick="switchAuthTab('loginTab')" data-i18n="nav_sign_in">{{ t('nav_sign_in') }}</button>
+                <button type="button" class="auth-tab-btn {% if mode == 'register' %}active{% endif %}" onclick="switchAuthTab('registerTab')" data-i18n="auth_register_title">{{ t('auth_register_title') }}</button>
+                <button type="button" class="auth-tab-btn {% if mode == 'forgot' %}active{% endif %}" onclick="switchAuthTab('forgotTab')" data-i18n="auth_reset_title">{{ t('auth_reset_title') }}</button>
             </div>
 
             <!-- Form 1: LOGIN -->
             <div id="loginTab" class="tab-content-form {% if mode == 'login' or not mode %}active{% endif %}">
-                <h2 class="auth-form-title">Welcome to Bizflow AI 👋</h2>
-                <p class="auth-form-sub">Sign in to open your isolated store dashboard.</p>
+                <h2 class="auth-form-title" data-i18n="auth_welcome_back">{{ t('auth_welcome_back') }} 👋</h2>
+                <p class="auth-form-sub" data-i18n="auth_sign_in_desc">{{ t('auth_sign_in_desc') }}</p>
 
                 <form action="{{ url_for('login_route') }}" method="POST">
                     <div class="form-group">
-                        <label class="form-label">Username *</label>
-                        <input type="text" name="identifier" class="form-control" placeholder="Enter username" required>
+                        <label class="form-label" data-i18n="label_identifier">{{ t('label_identifier') }} *</label>
+                        <input type="text" name="identifier" class="form-control" data-i18n-ph="ph_identifier" placeholder="{{ t('ph_identifier') }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Password *</label>
-                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <label class="form-label" data-i18n="label_password">{{ t('label_password') }} *</label>
+                        <input type="password" name="password" class="form-control" data-i18n-ph="ph_password" placeholder="{{ t('ph_password') }}" required>
                     </div>
 
                     <div class="form-row-link">
                         <label style="color:#94A3B8; cursor:pointer;">
                             <input type="checkbox" name="remember" checked style="accent-color:#EC4899;"> Remember me
                         </label>
-                        <span class="forgot-link" onclick="switchAuthTab('forgotTab')">Forgot password?</span>
+                        <span class="forgot-link" onclick="switchAuthTab('forgotTab')" data-i18n="link_forgot_password">{{ t('link_forgot_password') }}</span>
                     </div>
 
                     <button type="submit" class="btn btn-colorful-primary" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
-                        <i data-lucide="log-in"></i> Sign In to Bizflow AI
+                        <i data-lucide="log-in"></i> <span data-i18n="btn_sign_in">{{ t('btn_sign_in') }}</span>
                     </button>
                 </form>
             </div>
 
             <!-- Form 2: NEW USER REGISTER -->
             <div id="registerTab" class="tab-content-form {% if mode == 'register' %}active{% endif %}">
-                <h2 class="auth-form-title">Create New Account 🚀</h2>
-                <p class="auth-form-sub">Create your fresh account (Starts at 0 sales & 0 revenue).</p>
+                <h2 class="auth-form-title" data-i18n="auth_register_title">{{ t('auth_register_title') }} 🚀</h2>
+                <p class="auth-form-sub" data-i18n="auth_register_desc">{{ t('auth_register_desc') }}</p>
 
                 <form action="{{ url_for('register_route') }}" method="POST" autocomplete="off">
                     <div class="form-group">
-                        <label class="form-label">Full Name *</label>
-                        <input type="text" name="name" class="form-control" placeholder="Enter full name" autocomplete="off" required>
+                        <label class="form-label" data-i18n="label_store_name">{{ t('label_store_name') }} *</label>
+                        <input type="text" name="name" class="form-control" data-i18n-ph="ph_store_name" placeholder="{{ t('ph_store_name') }}" autocomplete="off" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Username *</label>
-                        <input type="text" name="username" class="form-control" placeholder="Choose a username" autocomplete="new-password" required>
+                        <label class="form-label" data-i18n="label_username">{{ t('label_username') }} *</label>
+                        <input type="text" name="username" class="form-control" data-i18n-ph="ph_username" placeholder="{{ t('ph_username') }}" autocomplete="new-password" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Password *</label>
-                        <input type="password" name="password" class="form-control" placeholder="At least 6 characters" autocomplete="new-password" required>
+                        <label class="form-label" data-i18n="label_password">{{ t('label_password') }} *</label>
+                        <input type="password" name="password" class="form-control" data-i18n-ph="ph_password" placeholder="{{ t('ph_password') }}" autocomplete="new-password" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Security Question (For Password Recovery) *</label>
+                        <label class="form-label" data-i18n="label_security_question">{{ t('label_security_question') }} *</label>
                         <select name="reset_question" class="form-control">
                             <option value="What is your store name?">What is your store name?</option>
                             <option value="What city were you born in?">What city were you born in?</option>
@@ -419,44 +442,44 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Security Answer *</label>
-                        <input type="text" name="reset_answer" class="form-control" placeholder="Your secret answer" required>
+                        <label class="form-label" data-i18n="label_security_answer">{{ t('label_security_answer') }} *</label>
+                        <input type="text" name="reset_answer" class="form-control" data-i18n-ph="ph_security_answer" placeholder="{{ t('ph_security_answer') }}" required>
                     </div>
 
                     <button type="submit" class="btn btn-colorful-emerald" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
-                        <i data-lucide="user-plus"></i> Register & Open Store
+                        <i data-lucide="user-plus"></i> <span data-i18n="btn_register">{{ t('btn_register') }}</span>
                     </button>
                 </form>
             </div>
 
             <!-- Form 3: FORGOT PASSWORD -->
             <div id="forgotTab" class="tab-content-form {% if mode == 'forgot' %}active{% endif %}">
-                <h2 class="auth-form-title">Reset Your Password 🔐</h2>
-                <p class="auth-form-sub">Answer your security question to set a new password.</p>
+                <h2 class="auth-form-title" data-i18n="auth_reset_title">{{ t('auth_reset_title') }} 🔐</h2>
+                <p class="auth-form-sub" data-i18n="auth_reset_desc">{{ t('auth_reset_desc') }}</p>
 
                 <form action="{{ url_for('forgot_password_route') }}" method="POST">
                     <div class="form-group">
-                        <label class="form-label">Username *</label>
-                        <input type="text" name="identifier" class="form-control" placeholder="Enter username" required>
+                        <label class="form-label" data-i18n="label_identifier">{{ t('label_identifier') }} *</label>
+                        <input type="text" name="identifier" class="form-control" data-i18n-ph="ph_identifier" placeholder="{{ t('ph_identifier') }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Security Answer *</label>
-                        <input type="text" name="reset_answer" class="form-control" placeholder="Answer to your security question" required>
+                        <label class="form-label" data-i18n="label_security_answer">{{ t('label_security_answer') }} *</label>
+                        <input type="text" name="reset_answer" class="form-control" data-i18n-ph="ph_security_answer" placeholder="{{ t('ph_security_answer') }}" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">New Password *</label>
-                        <input type="password" name="new_password" class="form-control" placeholder="Enter new password" required>
+                        <label class="form-label" data-i18n="label_password">{{ t('label_password') }} *</label>
+                        <input type="password" name="new_password" class="form-control" data-i18n-ph="ph_password" placeholder="{{ t('ph_password') }}" required>
                     </div>
 
                     <button type="submit" class="btn btn-colorful-amber" style="width:100%; justify-content:center; padding:13px; font-size:0.98rem;">
-                        <i data-lucide="key"></i> Update Password & Sign In
+                        <i data-lucide="key"></i> <span data-i18n="btn_reset_password">{{ t('btn_reset_password') }}</span>
                     </button>
                 </form>
 
                 <div style="margin-top:18px; text-align:center;">
-                    <span class="forgot-link" onclick="switchAuthTab('loginTab')">← Back to Sign In</span>
+                    <span class="forgot-link" onclick="switchAuthTab('loginTab')" data-i18n="link_sign_in_now">← Sign In</span>
                 </div>
             </div>
 

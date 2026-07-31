@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        window.BIZFLOW_TRANSLATIONS = {{ translations|tojson|safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 </head>
 <body>
 
@@ -28,37 +32,37 @@
             <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
                 <a href="{{ url_for('dashboard') }}">
                     <i data-lucide="layout-dashboard"></i>
-                    <span>Dashboard</span>
+                    <span data-i18n="nav_dashboard">{{ t('nav_dashboard') }}</span>
                 </a>
             </li>
             <li class="nav-item {% if active_page == 'customers' %}active{% endif %}">
                 <a href="{{ url_for('customers_page') }}">
                     <i data-lucide="users"></i>
-                    <span>Customers</span>
+                    <span data-i18n="nav_customers">{{ t('nav_customers') }}</span>
                 </a>
             </li>
             <li class="nav-item {% if active_page == 'products' %}active{% endif %}">
                 <a href="{{ url_for('products_page') }}">
                     <i data-lucide="package"></i>
-                    <span>Products & Stock</span>
+                    <span data-i18n="nav_products">{{ t('nav_products') }}</span>
                 </a>
             </li>
             <li class="nav-item {% if active_page == 'sales' %}active{% endif %}">
                 <a href="{{ url_for('sales_page') }}">
                     <i data-lucide="shopping-cart"></i>
-                    <span>Sales & POS</span>
+                    <span data-i18n="nav_sales">{{ t('nav_sales') }}</span>
                 </a>
             </li>
             <li class="nav-item {% if active_page == 'invoices' %}active{% endif %}">
                 <a href="{{ url_for('invoices_page') }}">
                     <i data-lucide="file-text"></i>
-                    <span>Invoices</span>
+                    <span data-i18n="nav_invoices">{{ t('nav_invoices') }}</span>
                 </a>
             </li>
             <li class="nav-item {% if active_page == 'ai' %}active{% endif %}">
                 <a href="{{ url_for('ai_assistant_page') }}">
                     <i data-lucide="brain"></i>
-                    <span>AI Assistant</span>
+                    <span data-i18n="nav_ai_assistant">{{ t('nav_ai_assistant') }}</span>
                 </a>
             </li>
         </ul>
@@ -68,7 +72,7 @@
             <p>Version 2.5 • AI-Powered CRM</p>
             <div style="margin-top:12px;">
                 <a href="{{ url_for('logout_route') }}" style="color:var(--accent-rose); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
-                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> Logout
+                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> <span data-i18n="logout">{{ t('logout') }}</span>
                 </a>
             </div>
         </div>
@@ -80,19 +84,29 @@
         <header class="top-header">
             <div style="display:flex; align-items:center; gap:16px;">
                 <div class="header-title">{% block page_heading %}Dashboard{% endblock %}</div>
-                <span class="badge badge-emerald" style="font-size:0.75rem;"><i data-lucide="zap" style="width:12px;"></i> System Live</span>
+                <span class="badge badge-emerald" style="font-size:0.75rem;"><i data-lucide="zap" style="width:12px;"></i> <span data-i18n="system_live">{{ t('system_live') }}</span></span>
             </div>
 
             <div class="header-actions">
+                <!-- Language Selector Dropdown -->
+                <div class="lang-selector-wrapper" title="Select Language">
+                    <i data-lucide="globe" style="width:14px; height:14px; color:#A7F3D0;"></i>
+                    <select class="bizflow-lang-select" aria-label="Select Language">
+                        {% for code, lang in supported_languages.items() %}
+                            <option value="{{ code }}" {% if current_lang == code %}selected{% endif %}>{{ lang.native }} ({{ lang.name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <a href="{{ url_for('ai_assistant_page') }}" class="btn btn-secondary btn-sm" title="Ask Gemini AI">
-                    <i data-lucide="sparkles" style="color:#EC4899; width:14px; height:14px;"></i> AI Co-Pilot
+                    <i data-lucide="sparkles" style="color:#EC4899; width:14px; height:14px;"></i> <span data-i18n="ai_copilot_btn">{{ t('ai_copilot_btn') }}</span>
                 </a>
                 <div class="user-badge">
                     <span class="status-dot"></span>
                     <span><strong>{{ current_user['name'] if current_user else 'Store Manager' }}</strong> <span style="opacity:0.75; font-size:0.78rem;">({{ current_user['role'] if current_user else 'Store Manager' }})</span></span>
                 </div>
                 <a href="{{ url_for('logout_route') }}" class="btn btn-secondary btn-sm" title="Log out of session">
-                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> Logout
+                    <i data-lucide="log-out" style="width:14px; height:14px;"></i> <span data-i18n="logout">{{ t('logout') }}</span>
                 </a>
             </div>
         </header>

@@ -23,6 +23,7 @@ from sales import SalesManager
 from invoice import generate_pdf_invoice
 from reports import BusinessReporter
 from ai_assistant import AIAssistant
+from translations import TRANSLATIONS, SUPPORTED_LANGUAGES, get_translation
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -52,14 +53,46 @@ def seed_admin_if_empty():
 
 seed_admin_if_empty()
 
-# Context Processor for Global User State
+# Context Processor for Global User State & Internationalization
 @app.context_processor
-def inject_user():
+def inject_global_vars():
     user_id = session.get('user_id')
-    if user_id:
-        user = get_user_by_id(user_id)
-        return dict(current_user=user)
-    return dict(current_user=None)
+    user = get_user_by_id(user_id) if user_id else None
+    
+    current_lang = session.get('lang', 'en')
+    if current_lang not in SUPPORTED_LANGUAGES:
+        current_lang = 'en'
+        
+    def t(key):
+        return get_translation(key, current_lang)
+        
+    return dict(
+        current_user=user,
+        current_lang=current_lang,
+        supported_languages=SUPPORTED_LANGUAGES,
+        translations=TRANSLATIONS,
+        t=t
+    )
+
+# Language Switcher Route
+@app.route('/set-lang/<lang_code>', methods=['GET', 'POST'])
+def set_language_route(lang_code):
+    if lang_code in SUPPORTED_LANGUAGES:
+        session['lang'] = lang_code
+    else:
+        session['lang'] = 'en'
+    
+    if request.method == 'POST' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'status': 'success', 'lang': session['lang']})
+    
+    referrer = request.referrer
+    if referrer and referrer != request.url:
+        return redirect(referrer)
+    return redirect(url_for('index'))
+
+@app.route('/api/translations')
+def get_translations_api():
+    return jsonify(TRANSLATIONS)
 
 # Authentication Protection Decorator
 def login_required(f):
