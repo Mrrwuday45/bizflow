@@ -552,7 +552,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function updateKeyBadge(isSaved) {}
+function updateKeyBadge(isSaved) {
+    const btn = document.getElementById('apiKeyConfigBtn');
+    if (!btn) return;
+    if (isSaved) {
+        btn.style.display = 'none';
+    } else {
+        btn.style.display = 'inline-flex';
+        btn.innerHTML = `<i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure API Key`;
+    }
+    if (window.lucide) lucide.createIcons();
+}
 
 function toggleHistorySidebar() {
     const sidebar = document.getElementById('chatgptSidebar');
