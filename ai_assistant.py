@@ -72,31 +72,44 @@ class AIAssistant:
     def handle_write_actions(user_id, user_message):
         """
         Parses intent for database write actions (Add Customer, Add Product) and executes them directly.
+        Validates whether actual details are provided vs meta phrases ("i will give details", "how to add").
         """
         msg_clean = user_message.strip()
         msg_lower = msg_clean.lower()
         
+        meta_phrases = [
+            'i will give', 'will give', 'give details', 'provide details', 
+            'details', 'later', 'how to', 'can you', 'help me', 'want to', 
+            'please add', 'how do i', 'for me', 'below', 'ask me'
+        ]
+
         # --- Action 1: Add Customer ---
         is_add_cust = any(kw in msg_lower for kw in ['add customer', 'create customer', 'new customer', 'register customer', 'save customer', 'add client', 'create client'])
         if is_add_cust or (('add' in msg_lower or 'create' in msg_lower) and ('client' in msg_lower or 'customer' in msg_lower)):
             phone_match = re.search(r'(\+?\d[\d\s\-\(\)]{8,14}\d)', msg_clean)
-            phone = phone_match.group(1).replace(' ', '').replace('-', '') if phone_match else "9876543210"
-            
             email_match = re.search(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', msg_clean)
-            email = email_match.group(1) if email_match else ""
             
-            name = "New Customer"
+            # Check if prompt is a generic statement / request for details
+            if any(mp in msg_lower for mp in meta_phrases) and not phone_match and not email_match:
+                return f"""## 👤 Add Customer via AI Assistant
+
+Please provide the customer details in your message!
+
+### 📝 Example Format:
+> *"Add customer **Rajesh Kumar**, phone **9876543210**, email **rajesh@gmail.com**, address **Delhi**"*
+
+*(Or navigate to **Customers** in the sidebar menu to use the registration form).*
+"""
+
+            name = ""
             name_match = re.search(r'(?:name|named|customer|client|add|create)\s+([A-Z][a-zA-Z0-9\s]{1,25}?)(?:\s*,|\s+phone|\s+with|\s+email|\s+\d|$)', msg_clean, re.IGNORECASE)
             if name_match:
                 candidate = name_match.group(1).strip()
-                for drop_word in ['customer', 'client', 'add', 'create', 'named', 'name', 'with', 'phone', 'new']:
-                    if candidate.lower() == drop_word:
-                        candidate = ""
-                if candidate and len(candidate) >= 2:
+                if candidate.lower() not in ['customer', 'client', 'add', 'create', 'named', 'name', 'with', 'phone', 'new']:
                     name = candidate.title()
             
-            if name == "New Customer" or not name:
-                words = [w for w in re.findall(r'\b[A-Za-z]+\b', msg_clean) if w.lower() not in ['add', 'create', 'new', 'customer', 'client', 'save', 'register', 'with', 'phone', 'email', 'number', 'address', 'details']]
+            if not name:
+                words = [w for w in re.findall(r'\b[A-Za-z]+\b', msg_clean) if w.lower() not in ['add', 'create', 'new', 'customer', 'client', 'save', 'register', 'with', 'phone', 'email', 'number', 'address', 'details', 'will', 'give', 'the']]
                 if words:
                     name = " ".join(words[:2]).title()
 
@@ -104,6 +117,23 @@ class AIAssistant:
                 name = name[9:].strip()
             elif name.lower().startswith('client '):
                 name = name[7:].strip()
+
+            is_meta_name = any(mp in name.lower() for mp in meta_phrases)
+            if not phone_match and not email_match and (not name or is_meta_name or len(name) < 2):
+                return f"""## 👤 Add Customer via AI Assistant
+
+Please provide the customer details in your prompt!
+
+### 📝 Example Format:
+> *"Add customer **Rajesh Kumar**, phone **9876543210**, email **rajesh@gmail.com**, address **Delhi**"*
+
+*(Or navigate to **Customers** in the sidebar menu to use the registration form).*
+"""
+
+            phone = phone_match.group(1).replace(' ', '').replace('-', '') if phone_match else "9999999999"
+            email = email_match.group(1) if email_match else ""
+            if not name or is_meta_name:
+                name = "New Customer"
                     
             addr_match = re.search(r'(?:address|location|city|in|at)\s+([a-zA-Z0-9\s,]{2,30})', msg_clean, re.IGNORECASE)
             address = addr_match.group(1).strip() if addr_match else "Local Store Region"
@@ -129,9 +159,20 @@ Could not execute database write action: `{str(e)}`. Please verify contact detai
         is_add_prod = any(kw in msg_lower for kw in ['add product', 'create product', 'new product', 'add item', 'new item', 'add stock'])
         if is_add_prod or (('add' in msg_lower or 'create' in msg_lower) and ('product' in msg_lower or 'stock' in msg_lower or 'item' in msg_lower)):
             price_match = re.search(r'(?:price|cost|rs|₹|\$)\s*:?\s*(\d+(?:\.\d+)?)', msg_clean, re.IGNORECASE)
-            price = float(price_match.group(1)) if price_match else 100.0
-            
             qty_match = re.search(r'(?:stock|quantity|qty|units)\s*:?\s*(\d+)', msg_clean, re.IGNORECASE)
+            
+            if any(mp in msg_lower for mp in meta_phrases) and not price_match and not qty_match:
+                return f"""## 📦 Add Product to Inventory via AI Assistant
+
+Please specify the product details in your message!
+
+### 📝 Example Format:
+> *"Add product **Wireless Mouse**, price **499**, stock **25**, category **Electronics**"*
+
+*(Or navigate to **Products & Stock** in the sidebar menu to use the inventory form).*
+"""
+
+            price = float(price_match.group(1)) if price_match else 100.0
             quantity = int(qty_match.group(1)) if qty_match else 10
             
             prod_name = ""
@@ -150,6 +191,18 @@ Could not execute database write action: `{str(e)}`. Please verify contact detai
                 prod_name = prod_name[8:].strip()
             elif prod_name.lower().startswith('item '):
                 prod_name = prod_name[5:].strip()
+
+            is_meta_prod = any(mp in prod_name.lower() for mp in meta_phrases)
+            if not price_match and not qty_match and (not prod_name or is_meta_prod or len(prod_name) < 2):
+                return f"""## 📦 Add Product to Inventory via AI Assistant
+
+Please specify the product details in your prompt!
+
+### 📝 Example Format:
+> *"Add product **Wireless Mouse**, price **499**, stock **25**, category **Electronics**"*
+
+*(Or navigate to **Products & Stock** in the sidebar menu).*
+"""
 
             cat_match = re.search(r'(?:category|cat)\s*:?\s*([a-zA-Z0-9\s]+)', msg_clean, re.IGNORECASE)
             category = cat_match.group(1).strip().title() if cat_match else "General"
