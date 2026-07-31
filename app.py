@@ -376,7 +376,8 @@ def api_ai_chat_route():
         return jsonify({'error': 'Message prompt is required.'}), 400
 
     try:
-        reply = AIAssistant.chat_copilot(user_id, message)
+        session_key = session.get('gemini_api_key')
+        reply = AIAssistant.chat_copilot(user_id, message, session_key=session_key)
         return jsonify({'reply': reply, 'status': 'success'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -387,6 +388,8 @@ def save_gemini_key_route():
     data = request.get_json() or {}
     key = data.get('gemini_api_key', '').strip()
     
+    session['gemini_api_key'] = key
+
     env_path = BASE_DIR / ".env"
     with open(env_path, "w") as f:
         f.write(f"GEMINI_API_KEY={key}\nSECRET_KEY={SECRET_KEY}\n")

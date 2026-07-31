@@ -66,7 +66,7 @@ class AIAssistant:
         return None
 
     @staticmethod
-    def chat_copilot(user_id, user_message, chat_history=None, api_key_override=None):
+    def chat_copilot(user_id, user_message, chat_history=None, api_key_override=None, session_key=None):
         """
         In-built Gemini AI Copilot providing structured markdown responses with bullet points, bold headers, tables, and code.
         Uses live Google Gemini API with automatic multi-model fallback and dynamic database context.
@@ -104,23 +104,13 @@ class AIAssistant:
         prompt = f"{system_context}\n\nUser Question: {user_message}"
 
         response_text = None
-        api_key = api_key_override or GEMINI_API_KEY
+        api_key = api_key_override or session_key or GEMINI_API_KEY
         
-        # Fast Live Gemini Cloud API call if valid Google AI Studio key is provided
-        if api_key and api_key.startswith("AIzaSy"):
-            try:
-                from google import genai
-                client = genai.Client(api_key=api_key)
-                response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt
-                )
-                if response and response.text:
-                    response_text = response.text.strip()
-            except Exception as ex:
-                print(f"Gemini Cloud API notice (instant local fallback active): {ex}")
+        # 1. Try Direct Google Gemini REST Cloud API with SSL context handling if API key is provided
+        if api_key and len(api_key) > 10 and not api_key.startswith("YOUR_"):
+            response_text = AIAssistant.call_gemini_rest_api(api_key, prompt)
 
-        # Intelligent Fallback Engine if API key is unconfigured or fallback is triggered
+        # 2. Intelligent In-Built CRM Engine Fallback if API key is unconfigured or cloud request fails
         if not response_text:
             msg_clean = user_message.strip()
             msg_lower = msg_clean.lower()
@@ -279,3 +269,66 @@ Here is a comprehensive breakdown and analysis for **"{msg_clean}"**:
         if not customer:
             raise ValueError("Customer not found.")
         return AIAssistant.chat_copilot(user_id, f"Summarize purchase history and customer profile for {customer['name']}")
+
+    @staticmethod
+    def call_gemini_rest_api(api_key, prompt):
+        if not api_key:
+            return None
+        
+        api_key = api_key.strip()
+        if len(api_key) < 10 or api_key.startswith("YOUR_"):
+            return None
+
+        # 1. Try official google.genai Client with gemini-flash-latest priority
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+            models_to_try = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-lite-latest']
+            for m in models_to_try:
+                try:
+                    res = client.models.generate_content(model=m, contents=prompt)
+                    if res and res.text:
+                        return res.text.strip()
+                except Exception as m_err:
+                    print(f"GenAI model {m} notice: {m_err}")
+        except Exception as client_err:
+            print(f"GenAI client notice: {client_err}")
+
+        # 2. REST API fallback if client initialization failed
+        import ssl, json, urllib.request, urllib.error
+        context = ssl._create_unverified_context()
+        models = ['gemini-flash-latest', 'gemini-1.5-flash', 'gemini-2.0-flash']
+        last_error_msg = None
+
+        for model_name in models:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            payload = {
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }]
+            }
+            data = json.dumps(payload).encode('utf-8')
+            req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+
+            try:
+                with urllib.request.urlopen(req, context=context, timeout=8) as res:
+                    if res.status == 200:
+                        resp_json = json.loads(res.read().decode('utf-8'))
+                        candidates = resp_json.get('candidates', [])
+                        if candidates:
+                            parts = candidates[0].get('content', {}).get('parts', [])
+                            if parts and 'text' in parts[0]:
+                                return parts[0]['text'].strip()
+            except urllib.error.HTTPError as http_err:
+                try:
+                    err_body = json.loads(http_err.read().decode('utf-8'))
+                    msg = err_body.get('error', {}).get('message', str(http_err))
+                    last_error_msg = f"Google API Notice ({http_err.code}): {msg}"
+                except Exception:
+                    last_error_msg = f"Google API Notice ({http_err.code}): {http_err.reason}"
+                print(f"Gemini API Notice ({model_name}): {last_error_msg}")
+            except Exception as err:
+                last_error_msg = f"Network Connection Notice: {err}"
+                print(f"Gemini API Notice ({model_name}): {err}")
+
+        return None
