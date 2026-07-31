@@ -8,7 +8,13 @@ class BusinessReporter:
     @staticmethod
     def get_dashboard_summary(user_id):
         conn = get_db_connection()
-        
+        month_filter = datetime.now().strftime("%Y-%m")
+        monthly_revenue = conn.execute("""
+            SELECT COALESCE(SUM(total_amount), 0.0)
+            FROM sales
+            WHERE user_id = ? AND strftime('%Y-%m', date) = ?
+        """, (user_id, month_filter)).fetchone()[0]
+
         total_customers = conn.execute("SELECT COUNT(*) FROM customers WHERE user_id = ?", (user_id,)).fetchone()[0]
         total_products = conn.execute("SELECT COUNT(*) FROM products WHERE user_id = ?", (user_id,)).fetchone()[0]
         low_stock_count = conn.execute("SELECT COUNT(*) FROM products WHERE user_id = ? AND quantity <= 5", (user_id,)).fetchone()[0]
@@ -82,6 +88,7 @@ class BusinessReporter:
             'low_stock_count': low_stock_count,
             'total_sales_count': total_sales_count,
             'total_revenue': total_revenue,
+            'monthly_revenue': monthly_revenue,
             'recent_sales': [dict(s) for s in recent_sales],
             'top_customers': [dict(c) for c in top_customers],
             'top_products': [dict(p) for p in top_products],
@@ -89,4 +96,38 @@ class BusinessReporter:
             'chart_revenue': chart_revenue,
             'chart_prod_labels': chart_prod_labels,
             'chart_prod_data': chart_prod_data
+        }
+
+    @staticmethod
+    def get_landing_statistics(user_id=None):
+        conn = get_db_connection()
+        current_month_str = datetime.now().strftime("%B %Y")
+        month_filter = datetime.now().strftime("%Y-%m")
+
+        if user_id:
+            monthly_revenue = conn.execute("SELECT COALESCE(SUM(total_amount), 0.0) FROM sales WHERE user_id = ? AND strftime('%Y-%m', date) = ?", (user_id, month_filter)).fetchone()[0]
+            total_revenue = conn.execute("SELECT COALESCE(SUM(total_amount), 0.0) FROM sales WHERE user_id = ?", (user_id,)).fetchone()[0]
+            invoice_count = conn.execute("SELECT COUNT(*) FROM invoices WHERE user_id = ?", (user_id,)).fetchone()[0]
+            customer_count = conn.execute("SELECT COUNT(*) FROM customers WHERE user_id = ?", (user_id,)).fetchone()[0]
+            product_count = conn.execute("SELECT COUNT(*) FROM products WHERE user_id = ?", (user_id,)).fetchone()[0]
+        else:
+            monthly_revenue = conn.execute("SELECT COALESCE(SUM(total_amount), 0.0) FROM sales WHERE strftime('%Y-%m', date) = ?", (month_filter,)).fetchone()[0]
+            total_revenue = conn.execute("SELECT COALESCE(SUM(total_amount), 0.0) FROM sales").fetchone()[0]
+            invoice_count = conn.execute("SELECT COUNT(*) FROM invoices").fetchone()[0]
+            customer_count = conn.execute("SELECT COUNT(*) FROM customers").fetchone()[0]
+            product_count = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        conn.close()
+
+        monthly_rev_val = round(float(monthly_revenue or 0.0), 2)
+        total_rev_val = round(float(total_revenue or 0.0), 2)
+
+        return {
+            "monthly_revenue": monthly_rev_val,
+            "formatted_monthly_revenue": f"₹{monthly_rev_val:,.2f}",
+            "total_revenue": total_rev_val,
+            "formatted_revenue": f"₹{total_rev_val:,.2f}",
+            "current_month": current_month_str,
+            "invoice_count": int(invoice_count or 0),
+            "customer_count": int(customer_count or 0),
+            "product_count": int(product_count or 0)
         }

@@ -181,31 +181,37 @@ Total Registered Customers: **{summary['total_customers']}**
 {c_list_str}
 """
 
-            # 3. Product / Stock queries
+            # 3. Product / Stock queries (e.g. "what are the products in the stock", "list products", "inventory")
             elif any(k in msg_lower for k in ['product', 'stock', 'inventory', 'reorder', 'item', 'catalog']):
                 matched_prod = [p for p in products if p['product_name'].lower() in msg_lower]
                 if matched_prod:
                     p = matched_prod[0]
-                    status = "⚠️ LOW STOCK (Restock Urgently)" if p['quantity'] <= 5 else "✅ Normal Stock"
-                    response_text = f"""## 📦 Product Breakdown: {p['product_name']}
+                    status = "⚠️ LOW STOCK (Restock Urgently)" if p['quantity'] <= 5 else "✅ Healthy Stock"
+                    response_text = f"""## 📦 Product Inventory Breakdown: {p['product_name']}
 
 - **Product Name**: {p['product_name']}
 - **Category**: {p.get('category', 'General')}
 - **Unit Price**: **Rs. {p['price']:.2f}**
 - **Available Stock**: **{p['quantity']} units** ({status})
 
-### 💡 Recommendation
+### 💡 Inventory Action
 {"Reorder this product soon to prevent running out of stock." if p['quantity'] <= 5 else "Stock levels are healthy for daily sales."}
 """
                 else:
-                    low_p = [p for p in products if p['quantity'] <= 5]
-                    low_str = "\n".join([f"- **{p['product_name']}**: Only {p['quantity']} left (Price: Rs. {p['price']:.2f})" for p in low_p]) if low_p else "- All products currently have healthy stock levels (> 5 units)."
-                    response_text = f"""## 📦 Inventory Overview
+                    prod_list_str = "\n".join([
+                        f"- **{p['product_name']}**: **{p['quantity']} units** available • **Rs. {p['price']:.2f}** *(Category: {p.get('category','General')})*"
+                        for p in products
+                    ]) if products else "- No products added to store inventory yet."
 
-You currently have **{summary['total_products']} products** in catalog and **{summary['low_stock_count']} items** requiring restock.
+                    response_text = f"""## 📦 Store Inventory & Products in Stock
 
-### ⚠️ Low Stock Alert List
-{low_str}
+You currently have **{len(products)} active products** in your store catalog:
+
+{prod_list_str}
+
+### 📊 Inventory Summary
+- **Total Products**: **{summary['total_products']}**
+- **Low Stock Items (<= 5 units)**: **{summary['low_stock_count']} items** requiring restock.
 """
 
             # 4. Store Performance & Revenue

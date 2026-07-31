@@ -147,7 +147,14 @@ def logout_route():
 def index():
     user_id = session.get('user_id')
     user = get_user_by_id(user_id) if user_id else None
-    return render_template('index.html', current_user=user)
+    stats = BusinessReporter.get_landing_statistics(user_id)
+    return render_template('index.html', current_user=user, stats=stats)
+
+@app.route('/landing-stats')
+def landing_stats_route():
+    user_id = session.get('user_id')
+    stats = BusinessReporter.get_landing_statistics(user_id)
+    return jsonify(stats)
 
 @app.route('/dashboard')
 @login_required

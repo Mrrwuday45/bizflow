@@ -103,8 +103,8 @@
                         <i data-lucide="trending-up"></i>
                     </div>
                     <div>
-                        <div style="font-size:0.75rem; color:#94A3B8;">Monthly Sales Volume</div>
-                        <div style="font-size:1.1rem; font-weight:800; color:white;">$48,920.00 <span style="font-size:0.75rem; color:#34D399;">+34.2%</span></div>
+                        <div style="font-size:0.75rem; color:#94A3B8;">Total Sales Volume</div>
+                        <div style="font-size:1.1rem; font-weight:800; color:white;" class="mockup-total-revenue">₹{{ "%.2f"|format(stats.total_revenue) }}</div>
                     </div>
                 </div>
 
@@ -114,8 +114,8 @@
                         <i data-lucide="brain"></i>
                     </div>
                     <div>
-                        <div style="font-size:0.75rem; color:#94A3B8;">AI Business Insight</div>
-                        <div style="font-size:0.85rem; font-weight:600; color:white;">"Top seller: Wireless Mouse (+42% demand)"</div>
+                        <div style="font-size:0.75rem; color:#94A3B8;">AI Business System</div>
+                        <div style="font-size:0.85rem; font-weight:600; color:white;">Real-Time CRM & Database Sync</div>
                     </div>
                 </div>
 
@@ -137,7 +137,7 @@
                                 <i data-lucide="layout-dashboard" style="width:16px;"></i> Dashboard
                             </div>
                             <div class="lp-mockup-nav-item">
-                                <i data-lucide="users" style="width:16px;"></i> Customers (1,240)
+                                <i data-lucide="users" style="width:16px;"></i> Customers (<span class="mockup-total-customers">{{ stats.customer_count }}</span>)
                             </div>
                             <div class="lp-mockup-nav-item">
                                 <i data-lucide="package" style="width:16px;"></i> Products & Stock
@@ -158,35 +158,35 @@
                             <div class="lp-mockup-stats-grid">
                                 <div class="lp-mockup-card">
                                     <div class="lp-mockup-card-title">TOTAL REVENUE</div>
-                                    <div class="lp-mockup-card-val">$128,450</div>
-                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +18.4%</div>
+                                    <div class="lp-mockup-card-val mockup-total-revenue">₹{{ "%.2f"|format(stats.total_revenue) }}</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> Real-Time</div>
                                 </div>
                                 <div class="lp-mockup-card">
-                                    <div class="lp-mockup-card-title">TOTAL SALES</div>
-                                    <div class="lp-mockup-card-val">1,842</div>
-                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +12.1%</div>
+                                    <div class="lp-mockup-card-title">INVOICES GENERATED</div>
+                                    <div class="lp-mockup-card-val mockup-total-invoices">{{ stats.invoice_count }}</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> Verified</div>
                                 </div>
                                 <div class="lp-mockup-card">
                                     <div class="lp-mockup-card-title">ACTIVE CUSTOMERS</div>
-                                    <div class="lp-mockup-card-val">580</div>
-                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> +24.8%</div>
+                                    <div class="lp-mockup-card-val mockup-total-customers">{{ stats.customer_count }}</div>
+                                    <div class="lp-mockup-badge lp-badge-up"><i data-lucide="arrow-up-right" style="width:12px;"></i> Registered</div>
                                 </div>
                             </div>
 
                             <!-- Mockup Transaction Table Preview -->
                             <div style="background: rgba(22, 19, 48, 0.5); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                    <span style="font-size:0.88rem; font-weight:700; color:white;">Recent Automated Transactions</span>
-                                    <span style="font-size:0.75rem; color:#EC4899; font-weight:600;">Real-Time Sync</span>
+                                    <span style="font-size:0.88rem; font-weight:700; color:white;">Live Database Overview</span>
+                                    <span style="font-size:0.75rem; color:#EC4899; font-weight:600;">System Live</span>
                                 </div>
                                 <div style="display:flex; flex-direction:column; gap:8px;">
                                     <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.82rem;">
-                                        <span style="color:white; font-weight:600;">#INV-1092 • TechCorp Solutions</span>
-                                        <span style="color:#10B981; font-weight:700;">+$1,450.00 (Paid)</span>
+                                        <span style="color:white; font-weight:600;">Total Invoices Generated</span>
+                                        <span style="color:#10B981; font-weight:700;" class="mockup-total-invoices">{{ stats.invoice_count }}</span>
                                     </div>
                                     <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; font-size:0.82rem;">
-                                        <span style="color:white; font-weight:600;">#INV-1091 • Apex Design Studio</span>
-                                        <span style="color:#10B981; font-weight:700;">+$820.00 (Paid)</span>
+                                        <span style="color:white; font-weight:600;">Total Products in Stock</span>
+                                        <span style="color:#10B981; font-weight:700;">{{ stats.product_count }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -202,20 +202,20 @@
         <div class="lp-container">
             <div class="lp-metrics-grid">
                 <div class="lp-metric-card">
-                    <div class="lp-metric-num lp-gradient-text" data-count="$15.4M+">$0</div>
-                    <div class="lp-metric-label">Business Sales Processed</div>
+                    <div class="lp-metric-num lp-gradient-text" id="stat-revenue" data-count="{{ stats.monthly_revenue }}">₹{{ "%.2f"|format(stats.monthly_revenue) }}</div>
+                    <div class="lp-metric-label">Monthly Revenue (<span id="stat-month-label">{{ stats.current_month }}</span>)</div>
                 </div>
                 <div class="lp-metric-card">
-                    <div class="lp-metric-num lp-gradient-text-alt" data-count="12,500+">0</div>
+                    <div class="lp-metric-num lp-gradient-text-alt" id="stat-invoices" data-count="{{ stats.invoice_count }}">{{ stats.invoice_count }}</div>
                     <div class="lp-metric-label">Invoices Generated</div>
                 </div>
                 <div class="lp-metric-card">
-                    <div class="lp-metric-num lp-gradient-text" data-count="99.9%">0%</div>
-                    <div class="lp-metric-label">Platform Uptime</div>
+                    <div class="lp-metric-num lp-gradient-text" id="stat-customers" data-count="{{ stats.customer_count }}">{{ stats.customer_count }}</div>
+                    <div class="lp-metric-label">Total Registered Customers</div>
                 </div>
                 <div class="lp-metric-card">
-                    <div class="lp-metric-num lp-gradient-text-alt" data-count="3.8x">0x</div>
-                    <div class="lp-metric-label">Average Growth Acceleration</div>
+                    <div class="lp-metric-num lp-gradient-text-alt" id="stat-products" data-count="{{ stats.product_count }}">{{ stats.product_count }}</div>
+                    <div class="lp-metric-label">Total Catalog Products</div>
                 </div>
             </div>
         </div>

@@ -73,6 +73,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Dynamic Real-Time Stats Fetching from Flask Backend API (/landing-stats)
+  const fetchLandingStats = () => {
+    fetch('/landing-stats')
+      .then(res => res.json())
+      .then(data => {
+        if (!data) return;
+        const elRev = document.getElementById('stat-revenue');
+        const elInv = document.getElementById('stat-invoices');
+        const elCust = document.getElementById('stat-customers');
+        const elProd = document.getElementById('stat-products');
+
+        if (elRev) {
+          const revVal = data.monthly_revenue !== undefined ? data.monthly_revenue : (data.total_revenue || 0);
+          elRev.dataset.count = revVal;
+          elRev.innerText = `₹${revVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+        const elMonth = document.getElementById('stat-month-label');
+        if (elMonth && data.current_month) {
+          elMonth.innerText = data.current_month;
+        }
+        if (elInv) {
+          elInv.dataset.count = data.invoice_count || 0;
+          elInv.innerText = (data.invoice_count || 0).toLocaleString();
+        }
+        if (elCust) {
+          elCust.dataset.count = data.customer_count || 0;
+          elCust.innerText = (data.customer_count || 0).toLocaleString();
+        }
+        if (elProd) {
+          elProd.dataset.count = data.product_count || 0;
+          elProd.innerText = (data.product_count || 0).toLocaleString();
+        }
+
+        // Update mockup indicators
+        document.querySelectorAll('.mockup-total-revenue').forEach(el => {
+          el.innerText = `₹${(data.total_revenue || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        });
+        document.querySelectorAll('.mockup-total-invoices').forEach(el => {
+          el.innerText = (data.invoice_count || 0).toLocaleString();
+        });
+        document.querySelectorAll('.mockup-total-customers').forEach(el => {
+          el.innerText = (data.customer_count || 0).toLocaleString();
+        });
+      })
+      .catch(err => console.log('Notice: Stats API fetch:', err));
+  };
+
+  fetchLandingStats();
+
   // Animated Counter on Scroll for Metrics
   const metricNums = document.querySelectorAll('.lp-metric-num');
   let animated = false;
@@ -88,26 +137,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionPos < screenPos) {
       animated = true;
       metricNums.forEach(num => {
-        const targetStr = num.dataset.count;
+        const targetStr = num.dataset.count || num.innerText;
         if (!targetStr) return;
-        const target = parseFloat(targetStr.replace(/[^0-9.]/g, ''));
-        const prefix = targetStr.match(/^[^0-9.]+/)?.[0] || '';
-        const suffix = targetStr.match(/[^0-9.]+$|\+/)?.[0] || '';
+        const target = parseFloat(targetStr.replace(/[^0-9.]/g, '')) || 0;
+        const isCurrency = num.id === 'stat-revenue' || num.innerText.includes('₹');
         
         let start = 0;
-        const duration = 1500;
+        const duration = 1200;
         const stepTime = 30;
         const steps = duration / stepTime;
         const increment = target / steps;
 
+        if (target === 0) {
+          num.innerText = isCurrency ? '₹0.00' : '0';
+          return;
+        }
+
         const timer = setInterval(() => {
           start += increment;
           if (start >= target) {
-            num.innerText = targetStr;
+            if (isCurrency) {
+              num.innerText = `₹${target.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            } else {
+              num.innerText = Math.round(target).toLocaleString();
+            }
             clearInterval(timer);
           } else {
-            const formatted = Number.isInteger(target) ? Math.floor(start) : start.toFixed(1);
-            num.innerText = `${prefix}${formatted}${suffix}`;
+            if (isCurrency) {
+              num.innerText = `₹${start.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            } else {
+              num.innerText = Math.floor(start).toLocaleString();
+            }
           }
         }, stepTime);
       });
