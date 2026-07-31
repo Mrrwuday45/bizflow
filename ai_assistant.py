@@ -13,7 +13,10 @@ except Exception:
     pass
 
 from config import GEMINI_API_KEY
-from models import get_customer_by_id, log_ai_interaction, get_all_customers, get_all_products, get_all_sales
+from models import (
+    get_customer_by_id, log_ai_interaction, get_all_customers, get_all_products, 
+    get_all_sales, add_customer, add_product
+)
 from reports import BusinessReporter
 
 class AIAssistant:
@@ -66,11 +69,124 @@ class AIAssistant:
         return None
 
     @staticmethod
+    def handle_write_actions(user_id, user_message):
+        """
+        Parses intent for database write actions (Add Customer, Add Product) and executes them directly.
+        """
+        msg_clean = user_message.strip()
+        msg_lower = msg_clean.lower()
+        
+        # --- Action 1: Add Customer ---
+        is_add_cust = any(kw in msg_lower for kw in ['add customer', 'create customer', 'new customer', 'register customer', 'save customer', 'add client', 'create client'])
+        if is_add_cust or (('add' in msg_lower or 'create' in msg_lower) and ('client' in msg_lower or 'customer' in msg_lower)):
+            phone_match = re.search(r'(\+?\d[\d\s\-\(\)]{8,14}\d)', msg_clean)
+            phone = phone_match.group(1).replace(' ', '').replace('-', '') if phone_match else "9876543210"
+            
+            email_match = re.search(r'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', msg_clean)
+            email = email_match.group(1) if email_match else ""
+            
+            name = "New Customer"
+            name_match = re.search(r'(?:name|named|customer|client|add|create)\s+([A-Z][a-zA-Z0-9\s]{1,25}?)(?:\s*,|\s+phone|\s+with|\s+email|\s+\d|$)', msg_clean, re.IGNORECASE)
+            if name_match:
+                candidate = name_match.group(1).strip()
+                for drop_word in ['customer', 'client', 'add', 'create', 'named', 'name', 'with', 'phone', 'new']:
+                    if candidate.lower() == drop_word:
+                        candidate = ""
+                if candidate and len(candidate) >= 2:
+                    name = candidate.title()
+            
+            if name == "New Customer" or not name:
+                words = [w for w in re.findall(r'\b[A-Za-z]+\b', msg_clean) if w.lower() not in ['add', 'create', 'new', 'customer', 'client', 'save', 'register', 'with', 'phone', 'email', 'number', 'address', 'details']]
+                if words:
+                    name = " ".join(words[:2]).title()
+
+            if name.lower().startswith('customer '):
+                name = name[9:].strip()
+            elif name.lower().startswith('client '):
+                name = name[7:].strip()
+                    
+            addr_match = re.search(r'(?:address|location|city|in|at)\s+([a-zA-Z0-9\s,]{2,30})', msg_clean, re.IGNORECASE)
+            address = addr_match.group(1).strip() if addr_match else "Local Store Region"
+
+            try:
+                cust_id = add_customer(user_id=user_id, name=name, phone=phone, email=email, address=address)
+                return f"""## ✅ Customer Successfully Created in Database!
+
+- **Customer ID**: `#CUST-{cust_id}`
+- **Customer Name**: **{name}**
+- **Contact Phone**: **{phone}**
+- **Email Address**: {email if email else 'N/A'}
+- **Store Location / Address**: {address}
+
+*(This record is now live in your Customer Directory and instantly available for POS cart sales & PDF invoicing.)*
+"""
+            except Exception as e:
+                return f"""## ⚠️ Customer Creation Notice
+Could not execute database write action: `{str(e)}`. Please verify contact details and try again.
+"""
+
+        # --- Action 2: Add Product ---
+        is_add_prod = any(kw in msg_lower for kw in ['add product', 'create product', 'new product', 'add item', 'new item', 'add stock'])
+        if is_add_prod or (('add' in msg_lower or 'create' in msg_lower) and ('product' in msg_lower or 'stock' in msg_lower or 'item' in msg_lower)):
+            price_match = re.search(r'(?:price|cost|rs|₹|\$)\s*:?\s*(\d+(?:\.\d+)?)', msg_clean, re.IGNORECASE)
+            price = float(price_match.group(1)) if price_match else 100.0
+            
+            qty_match = re.search(r'(?:stock|quantity|qty|units)\s*:?\s*(\d+)', msg_clean, re.IGNORECASE)
+            quantity = int(qty_match.group(1)) if qty_match else 10
+            
+            prod_name = ""
+            pname_match = re.search(r'(?:product|item|add product|create product)\s+([A-Za-z0-9\s]{2,30}?)(?:\s*,|\s+price|\s+cost|\s+stock|\s+qty|\s+category|\s+\d|$)', msg_clean, re.IGNORECASE)
+            if pname_match:
+                prod_name = pname_match.group(1).strip().title()
+
+            if not prod_name or prod_name.lower() in ['product', 'item', 'new', 'add', 'create']:
+                words = [w for w in re.findall(r'\b[A-Za-z0-9]+\b', msg_clean) if w.lower() not in ['add', 'create', 'new', 'product', 'item', 'stock', 'price', 'quantity', 'cost', 'rs', 'rupees', 'category']]
+                if words:
+                    prod_name = " ".join(words[:3]).title()
+                else:
+                    prod_name = "New Product Item"
+
+            if prod_name.lower().startswith('product '):
+                prod_name = prod_name[8:].strip()
+            elif prod_name.lower().startswith('item '):
+                prod_name = prod_name[5:].strip()
+
+            cat_match = re.search(r'(?:category|cat)\s*:?\s*([a-zA-Z0-9\s]+)', msg_clean, re.IGNORECASE)
+            category = cat_match.group(1).strip().title() if cat_match else "General"
+
+            try:
+                prod_id = add_product(user_id=user_id, name=prod_name, price=price, quantity=quantity, category=category, description="Added via AI Assistant Direct Write")
+                return f"""## ✅ Product Successfully Added to Inventory!
+
+- **Product ID**: `#PROD-{prod_id}`
+- **Product Name**: **{prod_name}**
+- **Unit Price**: **Rs. {price:,.2f}**
+- **Available Stock**: **{quantity} units**
+- **Category**: {category}
+
+*(This product is now active in your Stock Catalog & POS Checkout Cart.)*
+"""
+            except Exception as e:
+                return f"""## ⚠️ Product Creation Notice
+Could not execute database write action: `{str(e)}`.
+"""
+
+        return None
+
+    @staticmethod
     def chat_copilot(user_id, user_message, chat_history=None, api_key_override=None, session_key=None):
         """
         In-built Gemini AI Copilot providing structured markdown responses with bullet points, bold headers, tables, and code.
         Uses live Google Gemini API with automatic multi-model fallback and dynamic database context.
         """
+        # 0. Check AI Direct Write Actions (Add Customer, Add Product, etc.)
+        write_action_res = AIAssistant.handle_write_actions(user_id, user_message)
+        if write_action_res:
+            try:
+                log_ai_interaction(user_id, None, user_message, write_action_res, "action")
+            except Exception:
+                pass
+            return write_action_res
         summary = BusinessReporter.get_dashboard_summary(user_id)
         customers = get_all_customers(user_id)
         products = get_all_products(user_id)
