@@ -336,16 +336,24 @@ def ai_assistant_page():
         products=products
     )
 
-@app.route('/api/ai-chat', methods=['POST'])
+@app.route('/api/ai-chat', methods=['GET', 'POST'])
 @login_required
 def api_ai_chat_route():
     user_id = session['user_id']
-    data = request.get_json() or {}
-    message = data.get('message', '').strip()
     
+    message = ""
+    if request.method == 'GET':
+        message = (request.args.get('message') or request.args.get('msg') or request.args.get('prompt') or '').strip()
+    else:
+        data = request.get_json(silent=True) or {}
+        message = (data.get('message') or data.get('msg') or request.form.get('message') or request.form.get('msg') or '').strip()
+    
+    if not message:
+        return jsonify({'error': 'Message prompt is required.'}), 400
+
     try:
         reply = AIAssistant.chat_copilot(user_id, message)
-        return jsonify({'reply': reply})
+        return jsonify({'reply': reply, 'status': 'success'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
