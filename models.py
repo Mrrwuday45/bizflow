@@ -315,3 +315,28 @@ def log_ai_interaction(user_id, customer_id, prompt, response, req_type):
     ''', (user_id, customer_id, prompt, response, req_type))
     conn.commit()
     conn.close()
+
+def get_ai_chat_history(user_id, limit=20):
+    conn = get_db_connection()
+    logs = conn.execute('''
+        SELECT * FROM (
+            SELECT * FROM ai_logs
+            WHERE user_id = ?
+            ORDER BY log_id DESC
+            LIMIT ?
+        ) ORDER BY log_id ASC
+    ''', (user_id, limit)).fetchall()
+    conn.close()
+    return [dict(l) for l in logs]
+
+def delete_ai_chat_history(user_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM ai_logs WHERE user_id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+
+def delete_single_ai_log(user_id, log_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM ai_logs WHERE user_id = ? AND log_id = ?', (user_id, log_id))
+    conn.commit()
+    conn.close()

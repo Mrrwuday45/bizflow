@@ -8,101 +8,174 @@
 <!-- Marked.js for Rich Markdown & Bullet Point Parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<div class="gemini-workspace-container">
-    
-    <!-- Gemini Header Greeting -->
-    <div class="gemini-header">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <div class="gemini-badge">
-                <i data-lucide="sparkles" style="color:#EC4899; width:16px;"></i>
-                <span>Bizflow Gemini 2.0 / 2.5 Copilot</span>
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('apiKeyModal')">
-                <i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure Gemini API Key
+<script>
+    window.CHAT_HISTORY_DATA = {{ chat_history|tojson }};
+</script>
+
+<div class="chatgpt-wrapper">
+    <!-- LEFT COLLAPSIBLE SIDEBAR DRAWER (Hidden/Collapsed by default) -->
+    <div class="chatgpt-sidebar collapsed" id="chatgptSidebar">
+        <!-- Sidebar Header with Close Button -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:0.9rem; font-weight:700; color:white; display:flex; align-items:center; gap:6px;">
+                <i data-lucide="history" style="color:#EC4899; width:16px;"></i> Recent History
+            </span>
+            <button type="button" class="cg-close-sidebar-btn" onclick="toggleHistorySidebar()" title="Close History Sidebar">
+                <i data-lucide="x" style="width:16px;"></i>
             </button>
         </div>
-        <h1 class="gemini-title">Hello, {{ current_user['name'] if current_user else 'Store Manager' }}! 👋</h1>
-        <p class="gemini-subtitle">How can Bizflow Gemini help grow your business today?</p>
-    </div>
 
-    <!-- 4-Card Quick Prompt Grid (Gemini AI Style) -->
-    <div class="gemini-cards-grid" id="geminiPromptGrid">
-        <div class="gemini-card" onclick="sendQuickPrompt('Analyze my store sales performance and give 3 strategic growth recommendations.')">
-            <div class="gemini-card-icon purple"><i data-lucide="trending-up"></i></div>
-            <div class="gemini-card-title">Boost Store Revenue</div>
-            <div class="gemini-card-desc">Analyze revenue trends & get actionable growth strategies</div>
+        <!-- New Chat Button -->
+        <button type="button" class="cg-new-chat-btn" onclick="startNewChat()">
+            <i data-lucide="plus" style="width:16px;"></i>
+            <span>New chat</span>
+        </button>
+
+        <!-- Search Bar -->
+        <div class="cg-search-box">
+            <i data-lucide="search" style="width:14px; color:#94A3B8;"></i>
+            <input type="text" id="cgSearchInput" placeholder="Search history..." onkeyup="filterRecents()">
         </div>
 
-        <div class="gemini-card" onclick="sendQuickPrompt('Draft a high-converting 15% discount WhatsApp & SMS promotional offer for my customers.')">
-            <div class="gemini-card-icon pink"><i data-lucide="message-square"></i></div>
-            <div class="gemini-card-title">Draft Promo Offer SMS</div>
-            <div class="gemini-card-desc">Create personalized promotional messages for WhatsApp & SMS</div>
+        <!-- Recents List Header -->
+        <div class="cg-recents-label">Recents</div>
+
+        <!-- Recents Chat Links List -->
+        <div class="cg-recents-list" id="cgRecentsList">
+            {% if chat_history %}
+                {% for log in chat_history %}
+                <div class="cg-recent-item" id="rec_item_{{ log.log_id }}" onclick="loadHistoryItem({{ log.log_id }})">
+                    <i data-lucide="message-square" style="width:14px; flex-shrink:0; color:#94A3B8;"></i>
+                    <span class="cg-item-title" title="{{ log.prompt }}">{{ log.prompt }}</span>
+                    <button type="button" class="cg-item-delete" onclick="event.stopPropagation(); deleteSingleHistoryItem({{ log.log_id }})" title="Delete Chat">
+                        <i data-lucide="trash-2" style="width:12px;"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="cg-empty-msg">No recent chats</div>
+            {% endif %}
         </div>
 
-        <div class="gemini-card" onclick="sendQuickPrompt('Which items in my inventory are running low on stock and need immediate restock?')">
-            <div class="gemini-card-icon emerald"><i data-lucide="package"></i></div>
-            <div class="gemini-card-title">Stock Restock Alert</div>
-            <div class="gemini-card-desc">Check low-stock products & inventory reorder advice</div>
-        </div>
-
-        <div class="gemini-card" onclick="sendQuickPrompt('Give me step-by-step advice on how to improve customer retention and repeat visits.')">
-            <div class="gemini-card-icon amber"><i data-lucide="users"></i></div>
-            <div class="gemini-card-title">Customer VIP Retention</div>
-            <div class="gemini-card-desc">Build customer loyalty programs and repeat purchase plans</div>
-        </div>
-    </div>
-
-    <!-- Scrollable Chat Timeline Stream -->
-    <div class="gemini-chat-card card">
-        <div class="chat-header-bar">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div class="gemini-sparkle-avatar"><i data-lucide="sparkles"></i></div>
-                <div>
-                    <h3 style="font-size:1.05rem; font-weight:700; color:white;">Bizflow Gemini Copilot</h3>
-                    <p style="font-size:0.78rem; color:var(--text-muted);">Real-time context • Markdown bullet points enabled</p>
+        <!-- Bottom User Footer -->
+        <div class="cg-sidebar-footer">
+            <div class="cg-user-info">
+                <div class="cg-user-avatar">{{ current_user['name'][0]|upper if current_user else 'U' }}</div>
+                <div class="cg-user-details">
+                    <div class="cg-user-name">{{ current_user['name'] if current_user else 'Store Manager' }}</div>
+                    <div class="cg-user-tier">Bizflow AI Pro</div>
                 </div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="clearChatHistory()">
-                <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Clear Stream
+            {% if chat_history %}
+            <button type="button" class="cg-clear-all-btn" onclick="clearAllChatHistory()" title="Clear All History">
+                <i data-lucide="trash-2" style="width:14px;"></i> Clear All
             </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- RIGHT MAIN CHAT AREA (Starts 100% full width) -->
+    <div class="chatgpt-main-content">
+        <!-- Top Workspace Bar with 3-Line Menu Button -->
+        <div class="cg-top-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <!-- 3-Line Hamburger Menu Button (Top Left) -->
+                <button type="button" id="toggleSidebarBtn" class="cg-hamburger-btn" onclick="toggleHistorySidebar()" title="Toggle Recent History Sidebar">
+                    <i data-lucide="menu" style="width:20px; height:20px;"></i>
+                </button>
+
+                <div class="gemini-badge" style="margin:0;">
+                    <i data-lucide="sparkles" style="color:#EC4899; width:16px;"></i>
+                    <span>Bizflow Gemini 2.5 AI</span>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('apiKeyModal')">
+                    <i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure API Key
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="startNewChat()">
+                    <i data-lucide="plus" style="width:14px;"></i> New Chat
+                </button>
+            </div>
         </div>
 
-        <div id="chatStream" class="chat-stream-body">
-            <!-- Initial Gemini Welcome Bubble -->
-            <div class="chat-msg ai-msg">
-                <div class="chat-avatar ai-avatar"><i data-lucide="sparkles"></i></div>
-                <div class="chat-bubble ai-bubble">
-                    <div class="chat-name">Bizflow Gemini AI</div>
-                    <div class="chat-text markdown-body" id="welcomeMsg">
-                        Welcome to your in-built <strong>Bizflow Gemini AI Workspace</strong>! <br/><br/>
-                        I have full real-time access to your store metrics (revenue, catalog stock, customer list). You can ask me <strong>ANY</strong> business, marketing, writing, or analysis question!
+        <!-- Scrollable Active Chat Timeline Stream -->
+        <div class="gemini-chat-card card" style="border-radius:16px; flex:1; display:flex; flex-direction:column; background:rgba(18, 15, 38, 0.7); border:1px solid rgba(255,255,255,0.08); overflow:hidden;">
+            
+            <!-- Active Chat Area / Landing View -->
+            <div id="chatStreamContainer" style="flex:1; display:flex; flex-direction:column; overflow-y:auto; padding:20px;">
+                
+                <!-- Welcome Landing View (Centered Hero + 2x2 Quick Cards) -->
+                <div id="aiLandingView">
+                    <div class="ai-landing-hero">
+                        <h1 class="ai-landing-title">What can Bizflow Gemini help with today?</h1>
+                        <p class="ai-landing-subtitle">Hello {{ current_user['name'] if current_user else 'Store Manager' }}! Choose a prompt below or type any question about your store analytics, catalog stock, or sales.</p>
+                    </div>
+
+                    <!-- 2x2 Quick Prompt Cards Grid -->
+                    <div class="gemini-quick-grid">
+                        <div class="gemini-quick-card" onclick="sendQuickPrompt('Analyze my store sales performance and give 3 strategic growth recommendations.')">
+                            <div class="quick-card-icon purple"><i data-lucide="trending-up"></i></div>
+                            <div>
+                                <div class="quick-card-title">Boost Store Revenue</div>
+                                <div class="quick-card-desc">Analyze revenue trends & get actionable growth recommendations</div>
+                            </div>
+                        </div>
+
+                        <div class="gemini-quick-card" onclick="sendQuickPrompt('Draft a high-converting 15% discount WhatsApp & SMS promotional offer for my customers.')">
+                            <div class="quick-card-icon pink"><i data-lucide="message-square"></i></div>
+                            <div>
+                                <div class="quick-card-title">Draft Promo Offer SMS</div>
+                                <div class="quick-card-desc">Create personalized WhatsApp & SMS marketing copy</div>
+                            </div>
+                        </div>
+
+                        <div class="gemini-quick-card" onclick="sendQuickPrompt('Which items in my inventory are running low on stock and need immediate restock?')">
+                            <div class="quick-card-icon emerald"><i data-lucide="package"></i></div>
+                            <div>
+                                <div class="quick-card-title">Stock Restock Alert</div>
+                                <div class="quick-card-desc">Check low-stock products & inventory reorder advice</div>
+                            </div>
+                        </div>
+
+                        <div class="gemini-quick-card" onclick="sendQuickPrompt('Give me step-by-step advice on how to improve customer retention and repeat visits.')">
+                            <div class="quick-card-icon amber"><i data-lucide="users"></i></div>
+                            <div>
+                                <div class="quick-card-title">Customer VIP Retention</div>
+                                <div class="quick-card-desc">Build customer loyalty programs & repeat purchase plans</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Typing Indicator -->
-        <div id="typingIndicator" class="typing-indicator" style="display:none;">
-            <i data-lucide="loader" class="spin-icon"></i>
-            <span>Bizflow Gemini is processing your prompt and generating response...</span>
-        </div>
-
-        <!-- Bottom Floating Input Controls -->
-        <div class="gemini-input-bar">
-            <select id="chat_customer_tag" class="form-control customer-select" title="Optionally tag a customer">
-                <option value="">@ Mention Customer</option>
-                {% for c in customers %}
-                <option value="{{ c.name }}">{{ c.name }}</option>
-                {% endfor %}
-            </select>
-
-            <div style="flex:1; position:relative;">
-                <textarea id="chatInput" class="form-control chat-textarea" placeholder="Ask Bizflow Gemini anything about your store sales, customers, marketing ideas..." rows="1"></textarea>
+                <!-- Chat Stream Messages Container -->
+                <div id="chatStream" style="display:flex; flex-direction:column; gap:16px;"></div>
             </div>
 
-            <button type="button" class="btn btn-primary send-btn" onclick="submitChatMessage()">
-                <i data-lucide="send"></i> Ask Gemini
-            </button>
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="typing-indicator" style="display:none; padding:12px 20px; align-items:center; gap:10px; color:#EC4899; font-size:0.88rem;">
+                <i data-lucide="loader" class="spin-icon" style="width:16px;"></i>
+                <span>Bizflow Gemini is processing your prompt and generating response...</span>
+            </div>
+
+            <!-- Bottom Floating Input Controls -->
+            <div class="gemini-input-bar" style="margin:16px;">
+                <select id="chat_customer_tag" class="form-control customer-select" title="Optionally tag a customer">
+                    <option value="">@ Mention Customer</option>
+                    {% for c in customers %}
+                    <option value="{{ c.name }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <div style="flex:1; position:relative;">
+                    <textarea id="chatInput" class="form-control chat-textarea" placeholder="Ask Bizflow Gemini anything about your store sales, customers, marketing ideas..." rows="1"></textarea>
+                </div>
+
+                <button type="button" class="btn btn-primary send-btn" onclick="submitChatMessage()">
+                    <i data-lucide="send"></i> Ask Gemini
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -132,340 +205,486 @@
 </div>
 
 <style>
-.gemini-workspace-container {
+.chatgpt-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.gemini-header {
-    margin-bottom: 4px;
-}
-
-.gemini-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(99, 102, 241, 0.15));
-    border: 1px solid rgba(236, 72, 153, 0.4);
-    border-radius: 20px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #F472B6;
-    margin-bottom: 8px;
-}
-
-.gemini-title {
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #FFFFFF, #E0E7FF, #F472B6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
-}
-
-.gemini-subtitle {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
-
-/* 4-Card Quick Prompt Grid */
-.gemini-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
-    margin-bottom: 8px;
+    height: calc(100vh - 120px);
+    min-height: 620px;
+    position: relative;
 }
 
-.gemini-card {
-    background: rgba(18, 17, 38, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 18px;
+.cg-hamburger-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    backdrop-filter: blur(12px);
-}
-
-.gemini-card:hover {
-    border-color: #EC4899;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
-}
-
-.gemini-card-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+}
+.cg-hamburger-btn:hover {
+    background: rgba(236, 72, 153, 0.25);
+    border-color: rgba(236, 72, 153, 0.5);
+}
+
+.cg-close-sidebar-btn {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    padding: 4px;
+}
+.cg-close-sidebar-btn:hover {
     color: white;
-    margin-bottom: 12px;
-}
-.gemini-card-icon.purple { background: linear-gradient(135deg, #6366F1, #8B5CF6); }
-.gemini-card-icon.pink { background: linear-gradient(135deg, #EC4899, #F43F5E); }
-.gemini-card-icon.emerald { background: linear-gradient(135deg, #10B981, #06B6D4); }
-.gemini-card-icon.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
-
-.gemini-card-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 4px;
 }
 
-.gemini-card-desc {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
-
-/* Chat Card Workspace */
-.gemini-chat-card {
-    padding: 0 !important;
-    overflow: hidden;
+.chatgpt-sidebar {
+    width: 260px;
+    background: rgba(15, 12, 33, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    height: 580px;
-    border: 1px solid rgba(139, 92, 246, 0.4);
+    gap: 12px;
+    flex-shrink: 0;
+    backdrop-filter: blur(16px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.chat-header-bar {
-    background: rgba(14, 12, 30, 0.9);
-    padding: 16px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Collapsed state (Hidden by default) */
+.chatgpt-sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
+    border: none;
+}
+
+.cg-new-chat-btn {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cg-new-chat-btn:hover {
+    background: rgba(236, 72, 153, 0.2);
+    border-color: rgba(236, 72, 153, 0.4);
+}
+
+.cg-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+.cg-search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.82rem;
+    width: 100%;
+}
+
+.cg-recents-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.cg-recents-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 2px;
+}
+
+.cg-recent-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    color: #CBD5E1;
+    font-size: 0.85rem;
+    position: relative;
+}
+.cg-recent-item:hover, .cg-recent-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.cg-item-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cg-item-delete {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+    padding: 2px 4px;
+}
+.cg-recent-item:hover .cg-item-delete {
+    opacity: 1;
+}
+.cg-item-delete:hover {
+    color: #F87171;
+}
+
+.cg-empty-msg {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 16px 0;
+}
+
+.cg-sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cg-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.cg-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EC4899, #8B5CF6);
+    color: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cg-user-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cg-user-tier {
+    font-size: 0.7rem;
+    color: #EC4899;
+    font-weight: 600;
+}
+
+.cg-clear-all-btn {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.cg-clear-all-btn:hover {
+    color: #F87171;
+}
+
+.chatgpt-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cg-top-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.gemini-sparkle-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #EC4899, #8B5CF6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Landing View Styles */
+.ai-landing-hero {
+    text-align: center;
+    padding: 30px 20px 20px 20px;
+}
+
+.ai-landing-title {
+    font-size: 1.75rem;
+    font-weight: 800;
     color: white;
-    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
-}
-
-.chat-stream-body {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    background: rgba(10, 8, 23, 0.5);
-}
-
-.chat-msg {
-    display: flex;
-    gap: 14px;
-    max-width: 90%;
-}
-.chat-msg.user-msg {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-}
-.chat-msg.ai-msg {
-    align-self: flex-start;
-}
-
-.chat-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    flex-shrink: 0;
-}
-.ai-avatar {
-    background: linear-gradient(135deg, #EC4899, #8B5CF6);
-    box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
-}
-.user-avatar {
-    background: linear-gradient(135deg, #6366F1, #06B6D4);
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
-}
-
-.chat-bubble {
-    padding: 16px 20px;
-    border-radius: 18px;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    position: relative;
-}
-.ai-bubble {
-    background: rgba(18, 17, 38, 0.95);
-    border: 1px solid rgba(139, 92, 246, 0.35);
-    color: #E0E7FF;
-}
-.user-bubble {
-    background: linear-gradient(135deg, #4F46E5, #6366F1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.chat-name {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #F472B6;
-    margin-bottom: 6px;
-}
-
-.copy-response-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 10px;
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
-    color: #C7D2FE;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.copy-response-btn:hover {
-    background: rgba(236, 72, 153, 0.3);
-    color: white;
-}
-
-/* Markdown Formatting Styles */
-.markdown-body h2, .markdown-body h3 {
-    color: #FFFFFF;
-    margin-top: 12px;
     margin-bottom: 8px;
-    font-weight: 700;
-}
-.markdown-body ul, .markdown-body ol {
-    margin-left: 20px;
-    margin-bottom: 10px;
-}
-.markdown-body li {
-    margin-bottom: 4px;
-}
-.markdown-body blockquote {
-    border-left: 3px solid #EC4899;
-    padding-left: 12px;
-    color: #F472B6;
-    margin: 10px 0;
-    background: rgba(236, 72, 153, 0.1);
-    border-radius: 4px;
+    background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.typing-indicator {
-    padding: 10px 24px;
-    font-size: 0.85rem;
-    color: #F472B6;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(14, 12, 30, 0.8);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.spin-icon {
-    animation: spin 1s linear infinite;
-    width: 16px;
-    height: 16px;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.gemini-input-bar {
-    padding: 16px 24px;
-    background: rgba(14, 12, 30, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.customer-select {
-    width: 170px;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-}
-
-.chat-textarea {
-    border-radius: 24px;
-    padding: 12px 20px;
+.ai-landing-subtitle {
     font-size: 0.92rem;
-    resize: none;
+    color: #94A3B8;
+    margin-bottom: 24px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.send-btn {
-    border-radius: 24px;
-    padding: 12px 22px;
+.gemini-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+}
+
+@media (max-width: 768px) {
+    .gemini-quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.gemini-quick-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.gemini-quick-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(236, 72, 153, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.15);
+}
+
+.quick-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+}
+.quick-card-icon.purple { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+.quick-card-icon.pink { background: linear-gradient(135deg, #EC4899, #BE185D); }
+.quick-card-icon.emerald { background: linear-gradient(135deg, #10B981, #047857); }
+.quick-card-icon.amber { background: linear-gradient(135deg, #F59E0B, #B45309); }
+
+.quick-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 3px;
+}
+
+.quick-card-desc {
+    font-size: 0.8rem;
+    color: #94A3B8;
+    line-height: 1.3;
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('chatInput');
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            submitChatMessage();
-        }
-    });
+    scrollToBottom();
+
+    const textarea = document.getElementById('chatInput');
+    if (textarea) {
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitChatMessage();
+            }
+        });
+    }
 });
 
+function toggleHistorySidebar() {
+    const sidebar = document.getElementById('chatgptSidebar');
+    if (!sidebar) return;
+    sidebar.classList.toggle('collapsed');
+}
+
+function loadHistoryItem(logId) {
+    const logs = window.CHAT_HISTORY_DATA || [];
+    const item = logs.find(l => l.log_id === logId);
+    if (!item) return;
+
+    document.querySelectorAll('.cg-recent-item').forEach(el => el.classList.remove('active'));
+    const activeEl = document.getElementById(`rec_item_${logId}`);
+    if (activeEl) activeEl.classList.add('active');
+
+    // Hide landing view
+    const landing = document.getElementById('aiLandingView');
+    if (landing) landing.style.display = 'none';
+
+    // Clear and populate chat stream
+    const stream = document.getElementById('chatStream');
+    stream.innerHTML = '';
+
+    appendMessage('user', 'You', item.prompt);
+    appendMessage('ai', 'Bizflow Gemini AI', item.response);
+}
+
+function startNewChat() {
+    document.querySelectorAll('.cg-recent-item').forEach(el => el.classList.remove('active'));
+    
+    const landing = document.getElementById('aiLandingView');
+    if (landing) landing.style.display = 'block';
+
+    const stream = document.getElementById('chatStream');
+    if (stream) stream.innerHTML = '';
+    
+    if (window.lucide) lucide.createIcons();
+}
+
+async function deleteSingleHistoryItem(logId) {
+    try {
+        await fetch(`/api/delete-ai-log/${logId}`, { method: 'POST' });
+        const itemEl = document.getElementById(`rec_item_${logId}`);
+        if (itemEl) itemEl.remove();
+
+        if (window.CHAT_HISTORY_DATA) {
+            window.CHAT_HISTORY_DATA = window.CHAT_HISTORY_DATA.filter(l => l.log_id !== logId);
+        }
+
+        const list = document.getElementById('cgRecentsList');
+        if (list && list.children.length === 0) {
+            list.innerHTML = '<div class="cg-empty-msg">No recent chats</div>';
+        }
+    } catch (e) {
+        console.log("Delete error:", e);
+    }
+}
+
+async function clearAllChatHistory() {
+    if (!confirm("Are you sure you want to clear all recent chat history?")) return;
+    try {
+        await fetch('/api/clear-ai-history', { method: 'POST' });
+        const list = document.getElementById('cgRecentsList');
+        if (list) list.innerHTML = '<div class="cg-empty-msg">No recent chats</div>';
+        window.CHAT_HISTORY_DATA = [];
+        startNewChat();
+    } catch (e) {
+        console.log("Clear all error:", e);
+    }
+}
+
+function filterRecents() {
+    const q = (document.getElementById('cgSearchInput').value || '').toLowerCase();
+    document.querySelectorAll('.cg-recent-item').forEach(item => {
+        const txt = item.innerText.toLowerCase();
+        item.style.display = txt.includes(q) ? 'flex' : 'none';
+    });
+}
+
 function sendQuickPrompt(promptText) {
-    document.getElementById('chatInput').value = promptText;
-    submitChatMessage();
+    const textarea = document.getElementById('chatInput');
+    if (textarea) {
+        textarea.value = promptText;
+        submitChatMessage();
+    }
 }
 
 async function submitChatMessage() {
-    const input = document.getElementById('chatInput');
-    const custTag = document.getElementById('chat_customer_tag');
-    let message = input.value.trim();
+    const textarea = document.getElementById('chatInput');
+    const custSelect = document.getElementById('chat_customer_tag');
+    const promptText = textarea.value.trim();
+    if (!promptText) return;
 
-    if (!message) return;
-
-    if (custTag && custTag.value) {
-        message = `[Regarding Customer: ${custTag.value}] ${message}`;
-        custTag.value = '';
+    let fullPrompt = promptText;
+    if (custSelect && custSelect.value) {
+        fullPrompt = `[Customer: ${custSelect.value}] ${promptText}`;
     }
 
-    input.value = '';
+    // Hide landing hero on prompt submission
+    const landing = document.getElementById('aiLandingView');
+    if (landing) landing.style.display = 'none';
 
-    // Hide cards grid to focus on chat stream
-    const grid = document.getElementById('geminiPromptGrid');
-    if (grid) grid.style.display = 'none';
+    appendMessage('user', 'You', fullPrompt);
+    textarea.value = '';
 
-    // Append User Message
-    appendMessage('user', 'You', message);
-
-    // Show Typing Indicator
     const typing = document.getElementById('typingIndicator');
     typing.style.display = 'flex';
     scrollToBottom();
 
     try {
-        const response = await fetch('/api/ai-chat', {
+        const res = await fetch('/api/ai-chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message: fullPrompt })
         });
-        const data = await response.json();
+        const data = await res.json();
         typing.style.display = 'none';
 
         if (data.reply) {
             appendMessage('ai', 'Bizflow Gemini AI', data.reply);
+            
+            const newLogId = Date.now();
+            if (!window.CHAT_HISTORY_DATA) window.CHAT_HISTORY_DATA = [];
+            window.CHAT_HISTORY_DATA.unshift({ log_id: newLogId, prompt: fullPrompt, response: data.reply });
+            
+            const list = document.getElementById('cgRecentsList');
+            const empty = list.querySelector('.cg-empty-msg');
+            if (empty) empty.remove();
+
+            const newItem = document.createElement('div');
+            newItem.className = 'cg-recent-item active';
+            newItem.id = `rec_item_${newLogId}`;
+            newItem.onclick = () => loadHistoryItem(newLogId);
+            newItem.innerHTML = `
+                <i data-lucide="message-square" style="width:14px; flex-shrink:0; color:#94A3B8;"></i>
+                <span class="cg-item-title" title="${fullPrompt}">${fullPrompt}</span>
+                <button type="button" class="cg-item-delete" onclick="event.stopPropagation(); deleteSingleHistoryItem(${newLogId})" title="Delete Chat">
+                    <i data-lucide="trash-2" style="width:12px;"></i>
+                </button>
+            `;
+            list.insertBefore(newItem, list.firstChild);
+            if (window.lucide) lucide.createIcons();
         } else {
             appendMessage('ai', 'Bizflow Gemini AI', `Error: ${data.error || 'Unknown error'}`);
         }
@@ -483,7 +702,6 @@ function appendMessage(sender, name, rawText) {
     const icon = sender === 'ai' ? 'sparkles' : 'user';
     const msgId = 'msg_' + Date.now() + Math.floor(Math.random() * 1000);
     
-    // Parse Markdown using Marked.js if available
     let htmlContent = rawText;
     if (window.marked && sender === 'ai') {
         htmlContent = marked.parse(rawText);
@@ -518,25 +736,8 @@ function copyText(elementId) {
 }
 
 function scrollToBottom() {
-    const stream = document.getElementById('chatStream');
-    stream.scrollTop = stream.scrollHeight;
-}
-
-function clearChatHistory() {
-    const grid = document.getElementById('geminiPromptGrid');
-    if (grid) grid.style.display = 'grid';
-
-    const stream = document.getElementById('chatStream');
-    stream.innerHTML = `
-        <div class="chat-msg ai-msg">
-            <div class="chat-avatar ai-avatar"><i data-lucide="sparkles"></i></div>
-            <div class="chat-bubble ai-bubble">
-                <div class="chat-name">Bizflow Gemini AI</div>
-                <div class="chat-text markdown-body">Chat history cleared! What would you like Bizflow Gemini to help with next?</div>
-            </div>
-        </div>
-    `;
-    if (window.lucide) lucide.createIcons();
+    const container = document.getElementById('chatStreamContainer');
+    if (container) container.scrollTop = container.scrollHeight;
 }
 
 async function saveGeminiKey() {
@@ -554,7 +755,7 @@ async function saveGeminiKey() {
         });
         const data = await res.json();
         if (data.success) {
-            alert("Gemini API Key saved successfully! Gemini Copilot will now use your key for live responses.");
+            alert("Gemini API Key saved successfully!");
             closeModal('apiKeyModal');
         } else {
             alert("Failed to save key: " + data.message);

@@ -14,7 +14,8 @@ from models import (
     add_customer, update_customer, delete_customer,
     add_product, update_product, delete_product,
     create_sale, create_user, verify_user_login, reset_user_password,
-    get_user_by_id, get_user_by_username_or_email
+    get_user_by_id, get_user_by_username_or_email,
+    get_ai_chat_history, delete_ai_chat_history, delete_single_ai_log
 )
 from customer import CustomerManager
 from product import ProductManager
@@ -336,12 +337,28 @@ def ai_assistant_page():
     user_id = session['user_id']
     customers = CustomerManager.list_customers(user_id)
     products = ProductManager.list_products(user_id)
+    chat_history = get_ai_chat_history(user_id)
     return render_template(
         'ai_assistant.html', 
         active_page='ai', 
         customers=customers,
-        products=products
+        products=products,
+        chat_history=chat_history
     )
+
+@app.route('/api/clear-ai-history', methods=['POST', 'DELETE'])
+@login_required
+def clear_ai_history_route():
+    user_id = session['user_id']
+    delete_ai_chat_history(user_id)
+    return jsonify({'success': True, 'message': 'Chat history cleared successfully.'})
+
+@app.route('/api/delete-ai-log/<int:log_id>', methods=['POST', 'DELETE'])
+@login_required
+def delete_single_ai_log_route(log_id):
+    user_id = session['user_id']
+    delete_single_ai_log(user_id, log_id)
+    return jsonify({'success': True, 'message': 'Log deleted.'})
 
 @app.route('/api/ai-chat', methods=['GET', 'POST'])
 @login_required

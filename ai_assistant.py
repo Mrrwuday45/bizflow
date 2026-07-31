@@ -106,25 +106,19 @@ class AIAssistant:
         response_text = None
         api_key = api_key_override or GEMINI_API_KEY
         
-        # Try Live Gemini API with official supported model names if key is provided
-        if api_key and len(api_key) > 10 and not api_key.startswith("YOUR_"):
-            candidate_models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro']
+        # Fast Live Gemini Cloud API call if valid Google AI Studio key is provided
+        if api_key and api_key.startswith("AIzaSy"):
             try:
                 from google import genai
                 client = genai.Client(api_key=api_key)
-                for m in candidate_models:
-                    try:
-                        response = client.models.generate_content(
-                            model=m,
-                            contents=prompt
-                        )
-                        if response and response.text:
-                            response_text = response.text.strip()
-                            break
-                    except Exception as model_err:
-                        print(f"Gemini API model {m} notice: {model_err}")
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
+                if response and response.text:
+                    response_text = response.text.strip()
             except Exception as ex:
-                print(f"Gemini API Client Notice: {ex}")
+                print(f"Gemini Cloud API notice (instant local fallback active): {ex}")
 
         # Intelligent Fallback Engine if API key is unconfigured or fallback is triggered
         if not response_text:
