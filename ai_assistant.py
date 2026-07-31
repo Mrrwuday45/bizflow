@@ -284,10 +284,24 @@ Could not execute database write action: `{str(e)}`.
             msg_clean = user_message.strip()
             msg_lower = msg_clean.lower()
             
+            # 0. Friendly Greetings Check (e.g., hello, hi, hey, greetings)
+            if msg_lower in ['hello', 'hi', 'hey', 'greetings', 'namaste', 'good morning', 'good afternoon', 'good evening', 'hello ai']:
+                response_text = f"""## 👋 Hello! Welcome to Bizflow Gemini AI
+
+I am your intelligent store copilot. Here is how I can assist your store today:
+
+### 🚀 What I Can Do For You:
+1. **Add Customers Directly**: Type *"Add customer Ramesh Kumar, phone 9876543210, email ramesh@gmail.com, address Delhi"*
+2. **Add Products to Inventory**: Type *"Add product Wireless Mouse, price 499, stock 25, category Electronics"*
+3. **Analyze Store Performance**: Ask *"How are my store sales performing?"* or *"What are my top products?"*
+4. **Draft Promotional Messages**: Ask *"Create a WhatsApp discount SMS for my customers"*
+
+How can I help you right now?
+"""
+
             # 1. Math calculation check
-            math_ans = AIAssistant.eval_math_query(user_message)
-            if math_ans:
-                response_text = math_ans
+            elif AIAssistant.eval_math_query(user_message):
+                response_text = AIAssistant.eval_math_query(user_message)
 
             # 2. Customer specific query
             elif any(k in msg_lower for k in ['who bought', 'customer', 'bought', 'phone', 'details for', 'client']):
