@@ -258,5 +258,5 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details
 
 <div align="center">
   <br />
-  Made with ❤️ for Local Businesses & Store Owners by <b>BizFlow AI</b>.
+  Made with for Local Businesses & Store Owners by <b>BizFlow AI</b>.
 </div>
