@@ -66,11 +66,16 @@
                     <div class="cg-user-tier">Bizflow AI Pro</div>
                 </div>
             </div>
-            {% if chat_history %}
-            <button type="button" class="cg-clear-all-btn" onclick="clearAllChatHistory()" title="Clear All History">
-                <i data-lucide="trash-2" style="width:14px;"></i> Clear All
-            </button>
-            {% endif %}
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="cg-clear-all-btn" onclick="openModal('apiKeyModal')" title="Configure API Key">
+                    <i data-lucide="key" style="width:14px; color:#F59E0B;"></i> Key
+                </button>
+                {% if chat_history %}
+                <button type="button" class="cg-clear-all-btn" onclick="clearAllChatHistory()" title="Clear All History">
+                    <i data-lucide="trash-2" style="width:14px;"></i> Clear All
+                </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -91,7 +96,7 @@
             </div>
 
             <div style="display:flex; align-items:center; gap:10px;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('apiKeyModal')">
+                <button type="button" id="apiKeyConfigBtn" class="btn btn-secondary btn-sm" onclick="openModal('apiKeyModal')">
                     <i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure API Key
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="startNewChat()">
@@ -532,6 +537,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     scrollToBottom();
 
+    const savedKey = localStorage.getItem('bizflow_gemini_key');
+    if (savedKey) {
+        const input = document.getElementById('gemini_key_input');
+        if (input) input.value = savedKey;
+        updateKeyBadge(true);
+    }
+
     const textarea = document.getElementById('chatInput');
     if (textarea) {
         textarea.addEventListener('keydown', (e) => {
@@ -542,6 +554,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+function updateKeyBadge(isSaved) {
+    const btn = document.getElementById('apiKeyConfigBtn');
+    if (!btn) return;
+    if (isSaved) {
+        btn.style.display = 'none';
+    } else {
+        btn.style.display = 'inline-flex';
+        btn.innerHTML = `<i data-lucide="key" style="color:#F59E0B; width:14px;"></i> Configure API Key`;
+    }
+    if (window.lucide) lucide.createIcons();
+}
 
 function toggleHistorySidebar() {
     const sidebar = document.getElementById('chatgptSidebar');
@@ -652,11 +676,13 @@ async function submitChatMessage() {
     typing.style.display = 'flex';
     scrollToBottom();
 
+    const savedKey = localStorage.getItem('bizflow_gemini_key') || '';
+
     try {
         const res = await fetch('/api/ai-chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: fullPrompt })
+            body: JSON.stringify({ message: fullPrompt, gemini_api_key: savedKey })
         });
         const data = await res.json();
         typing.style.display = 'none';
@@ -747,6 +773,11 @@ async function saveGeminiKey() {
         alert("Please enter a valid Gemini API key.");
         return;
     }
+
+    // Save permanently to browser localStorage
+    localStorage.setItem('bizflow_gemini_key', key);
+    updateKeyBadge(true);
+
     try {
         const res = await fetch('/api/save-gemini-key', {
             method: 'POST',
@@ -755,13 +786,15 @@ async function saveGeminiKey() {
         });
         const data = await res.json();
         if (data.success) {
-            alert("Gemini API Key saved successfully!");
+            alert("Gemini API Key saved permanently! You will not be asked again.");
             closeModal('apiKeyModal');
         } else {
-            alert("Failed to save key: " + data.message);
+            alert("Key saved locally in your browser.");
+            closeModal('apiKeyModal');
         }
     } catch (e) {
-        alert("Error saving API key.");
+        alert("API Key saved locally in your browser.");
+        closeModal('apiKeyModal');
     }
 }
 </script>

@@ -365,19 +365,15 @@ def delete_single_ai_log_route(log_id):
 def api_ai_chat_route():
     user_id = session['user_id']
     
-    message = ""
-    if request.method == 'GET':
-        message = (request.args.get('message') or request.args.get('msg') or request.args.get('prompt') or '').strip()
-    else:
-        data = request.get_json(silent=True) or {}
-        message = (data.get('message') or data.get('msg') or request.form.get('message') or request.form.get('msg') or '').strip()
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or data.get('msg') or request.args.get('message') or request.args.get('msg') or request.args.get('prompt') or request.form.get('message') or request.form.get('msg') or '').strip()
+    api_key_override = (data.get('gemini_api_key') or session.get('gemini_api_key') or os.environ.get('GEMINI_API_KEY') or '').strip()
     
     if not message:
         return jsonify({'error': 'Message prompt is required.'}), 400
 
     try:
-        session_key = session.get('gemini_api_key')
-        reply = AIAssistant.chat_copilot(user_id, message, session_key=session_key)
+        reply = AIAssistant.chat_copilot(user_id, message, api_key_override=api_key_override)
         return jsonify({'reply': reply, 'status': 'success'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
